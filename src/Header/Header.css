@@ -1,0 +1,35 @@
+.Header {
+    display: grid;
+    margin: 0 1vw 0 1vw;
+    grid-area: Header;
+    border-bottom: 1vh solid black;
+}
+
+.Header__Text {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #BD3900;
+    font-size: 1.2rem;
+    margin-top: -1vh;
+
+    .Header__Text_Publications {
+        text-align: left;
+        margin-left: 0.5vw;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+    .Header__Text_Title {
+        text-align: center;
+        letter-spacing: 0.5vw;
+    }
+
+    .Header__Text_Menu {
+        text-align: right;
+        margin-right: 0.5vw;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+}

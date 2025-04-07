@@ -1,0 +1,23 @@
+.SideBar__Article {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 0.3vh solid black;
+    max-width: 23vw;
+    margin-top: 5vh;
+    margin-left: 1vw;
+    align-items: flex-start;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    text-align: left;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2vh;
+}
+
+.SideBar__Article_Text {
+    :hover {
+        color: #BD3900;
+        transition: 0.2s;
+        cursor: pointer;
+    }
+}

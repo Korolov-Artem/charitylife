@@ -1,0 +1,22 @@
+.SideBar {
+    display: grid;
+    margin-left: 1vw;
+    grid-area: SideBar;
+    border-right: 1vh solid black;
+    border-bottom: 1vh solid black;
+}
+
+.SideBar__Topic {
+    display: flex;
+    justify-content: space-between;
+    padding: 1vh 1vw 0 0.7vw;
+    font-size: 1rem;
+    text-decoration: underline;
+    cursor: pointer;
+    max-height: 1vh;
+    :hover {
+        color: #BD3900;
+        transition: color 0.2s ease;
+        cursor: pointer;
+    }
+}

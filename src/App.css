@@ -1,18 +1,22 @@
 .App {
-    height: 100vh;
+    min-height: 100vh;
     width: 100vw;
-    background-color: #F8F4ED;
-    font: 400 14px "Nyght Serif";
+    background-color: #ECEBDF;
+    font: 400 14px "Nyght Serif Light";
     color: black;
     text-align: center;
-
 
     ::selection {
         background: #BD3900;
         color: #faeeee;
     }
-}
 
-.App__maintenance_img {
-    padding-top: 8rem;
+    display: grid;
+    grid-template-columns: 1.5fr 2fr 2fr;
+    grid-template-rows: 6vh 10fr 1fr;
+    gap: 0 0;
+    grid-template-areas:
+    "Header Header Header"
+    "SideBar Content Content"
+    "Footer Footer Footer";
 }

@@ -1,0 +1,4 @@
+.Content {
+    display: grid;
+    grid-area: Content;
+}
