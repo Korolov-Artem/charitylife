@@ -5,13 +5,13 @@ const Header = () => {
     <div className="Header">
       <div className="Header__Text">
         <div className="Header__Text_Publications">
-          <h2>Публікації</h2>
+          <h2 className="text-3xl mt-4 font-light">Публікації</h2>
         </div>
         <div className="Header__Text_Title">
-          <h2>CharityLife</h2>
+          <h2 className="text-3xl mt-4 font-light">CharityLife</h2>
         </div>
         <div className="Header__Text_Menu">
-          <h2>Меню</h2>
+          <h2 className="text-3xl mt-4 font-light">Меню</h2>
         </div>
       </div>
     </div>
