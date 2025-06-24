@@ -3,7 +3,6 @@
     display: grid;
     margin-left: 1vw;
     grid-area: SideBar;
-    border-right: 1vh solid black;
     border-bottom: 1vh solid black;
 }
 
@@ -14,6 +13,7 @@
     font-size: 1rem;
     text-decoration: underline;
     cursor: pointer;
+
     :hover {
         color: #BD3900;
         transition: color 0.2s ease;
