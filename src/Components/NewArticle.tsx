@@ -14,13 +14,14 @@ const NewArticle = () => {
         articles && articles.length > 0 ? articles[0] : null;
 
     return mostRecentArticle ? (
-        <div className="border-b-10 border-l-10 border-s-black">
+        <div className="border-b-10 border-l-10 border-s-black max-h-215">
             <h1 className="-ml-130 mt-10 font-normal tracking-[1rem]">
                 Найновіша Стаття
             </h1>
             <div>
                 <img
                     src={mostRecentArticle.image}
+                    alt=""
                     className="flex max-h-250 min-h-205 max-w-110 min-w-110 object-cover ml-8 mt-10 hover:cursor-pointer"
                 />
             </div>

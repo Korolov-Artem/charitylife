@@ -1,7 +1,27 @@
 import "./SideBar.css";
+import {useGetArticlesQuery} from "../../services/blogApi.ts";
 import Article from "./Article/Article.tsx";
+import {ArticleType} from "../../types/ArticleType.ts";
 
 const SideBar = () => {
+    const {data: articles, isLoading, isError} = useGetArticlesQuery(undefined)
+
+    if (isLoading) return "Loading...";
+    if (isError) return "Some error occurred"
+
+    if (!articles) return "Nothing here, yet"
+
+    const numberToStartSelectingFrom = Math.floor(
+        Math.random() * (articles.length - 1 + 1));
+    const maxArticles = numberToStartSelectingFrom + 5
+    const interestingArticles: ArticleType[] = []
+
+    for (let i = numberToStartSelectingFrom; i < maxArticles; i++) {
+        if (articles[i]) {
+            interestingArticles.push(articles[i])
+        }
+    }
+
     return (
         <div className="SideBar">
             <div className="SideBar__Topic">
@@ -13,11 +33,10 @@ const SideBar = () => {
                 </div>
             </div>
             <div>
-                <Article count={1}/>
-                <Article count={2}/>
-                <Article count={3}/>
-                <Article count={4}/>
-                <Article count={5}/>
+                {interestingArticles.map((a) => {
+                    return <Article data={a} count={
+                        interestingArticles.indexOf(a)}/>
+                })}
             </div>
         </div>
     );
