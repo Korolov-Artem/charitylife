@@ -14,7 +14,7 @@ const NewArticle = () => {
         articles && articles.length > 0 ? articles[0] : null;
 
     return mostRecentArticle ? (
-        <div className="border-b-10 border-l-10 border-s-black max-h-215">
+        <div className="border-b-10 border-l-10 border-s-black relative self-start">
             <h1 className="-ml-130 mt-10 font-normal tracking-[1rem]">
                 Найновіша Стаття
             </h1>
@@ -25,21 +25,21 @@ const NewArticle = () => {
                     className="flex max-h-250 min-h-205 max-w-110 min-w-110 object-cover ml-8 mt-10 hover:cursor-pointer"
                 />
             </div>
-            <div>
+            <div className="">
                 <h2 className="-mt-200 ml-130 max-w-130 text-left text-4xl font-light text-[#BD3900] leading-relaxed cursor-pointer hover:text-black hover:transition-colors hover:duration-200 hover:cursor-pointer">
                     {mostRecentArticle.title}
                 </h2>
             </div>
             <div className="flex flex-col flex-grow min-h-130">
-                <p className="max-w-100 text-left font-[Cormorant_Garamond] ml-130 mt-20 text-[1.3rem] leading-relaxed cursor-pointer hover:text-red-700 hover:transition-colors hover:duration-200 hover:cursor-pointer">
+                <p className="max-w-100 text-left font-[Cormorant_Garamond] ml-130 mt-20 text-[1.3rem] leading-[2] cursor-pointer hover:text-red-700 hover:transition-colors hover:duration-200 hover:cursor-pointer">
                     {mostRecentArticle.synopsis}
                 </p>
             </div>
-            <div className="flex justify-between items-center mt-8 mb-4">
+            <div className="absolute bottom-4 flex justify-between items-center mt-8">
                 <p className="text-[1rem] font-bold ml-130">
                     {mostRecentArticle.author}
                 </p>
-                <p className="font-bold mr-10 text-[#BD3900] text-[1rem]">
+                <p className="ml-100 font-bold mr-10 text-[#BD3900] text-[1rem]">
                     {new Date(mostRecentArticle.dataPublished).toLocaleDateString(
                         "uk-UA",
                         {
