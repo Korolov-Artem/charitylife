@@ -1,10 +1,27 @@
 import "./SideBar.css";
-import {useGetArticlesQuery} from "../../services/blogApi.ts";
+import {useGetArticlesQuery} from "../../services/articlesApi.ts";
 import Article from "./Article/Article.tsx";
 import {ArticleType} from "../../types/ArticleType.ts";
+import {useEffect, useState} from "react";
+import {useNavigate} from "react-router-dom";
 
 const SideBar = () => {
     const {data: articles, isLoading, isError} = useGetArticlesQuery(undefined)
+
+    const [clickData, setClickData] = useState(false);
+    const [id, setId] = useState("");
+    const navigate = useNavigate();
+
+    const handleClick = (id: string) => {
+        setClickData(true);
+        setId(id)
+    }
+
+    useEffect(() => {
+        if (clickData) {
+            navigate(`/${id}`);
+        }
+    }, [clickData, setClickData, id, setId]);
 
     if (isLoading) return "Loading...";
     if (isError) return "Some error occurred"
@@ -12,14 +29,12 @@ const SideBar = () => {
     if (!articles) return "Nothing here, yet"
 
     const numberToStartSelectingFrom = Math.floor(
-        Math.random() * (articles.length - 1 + 1));
-    const maxArticles = numberToStartSelectingFrom + 5
+        Math.random() * articles.length);
     const interestingArticles: ArticleType[] = []
 
-    for (let i = numberToStartSelectingFrom; i < maxArticles; i++) {
-        if (articles[i]) {
-            interestingArticles.push(articles[i])
-        }
+    for (let i = 0; i < 5; i++) {
+        const index = (numberToStartSelectingFrom + i) % articles.length
+        interestingArticles.push(articles[index]);
     }
 
     return (
@@ -34,8 +49,13 @@ const SideBar = () => {
             </div>
             <div>
                 {interestingArticles.map((a) => {
-                    return <Article data={a} count={
-                        interestingArticles.indexOf(a)}/>
+                    return (
+                        <div onClick={() => {
+                            handleClick(a.id)
+                        }}>
+                            <Article data={a} count={
+                                interestingArticles.indexOf(a)}/>
+                        </div>)
                 })}
             </div>
         </div>

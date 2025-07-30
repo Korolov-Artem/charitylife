@@ -1,17 +1,17 @@
 import {createApi} from "@reduxjs/toolkit/query/react";
 import {axiosBaseQuery} from "./axiosBaseQuery.ts";
 
-export const blogApi = createApi({
-    reducerPath: "blogApi",
+export const articlesApi = createApi({
+    reducerPath: "articlesApi",
     baseQuery: axiosBaseQuery({baseUrl: "http://localhost:3000/"}),
     tagTypes: ["Article"],
     endpoints: (builder) => ({
         getArticles: builder.query({
-            query: () => ({
+            query: (queryParams) => ({
                 url: "articles",
                 method: "GET",
                 data: undefined,
-                params: undefined,
+                params: queryParams,
             }),
             providesTags: ["Article"],
         }),
@@ -19,8 +19,6 @@ export const blogApi = createApi({
             query: (id) => ({
                 url: `articles/${id}`,
                 method: "GET",
-                data: undefined,
-                params: id,
             }),
             providesTags: (id) => [{type: "Article", id}],
         }),
@@ -65,4 +63,4 @@ export const {
     useCreateArticleMutation,
     useUpdateArticleMutation,
     useDeleteArticleMutation,
-} = blogApi;
+} = articlesApi;

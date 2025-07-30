@@ -3,14 +3,14 @@ import {axiosBaseQuery} from "./axiosBaseQuery.ts";
 
 export const authApi = createApi({
     reducerPath: "authApi",
-    baseQuery: axiosBaseQuery({baseUrl: "http://localhost:3000/"}),
+    baseQuery: axiosBaseQuery({baseUrl: "http://localhost:3000/auth/"}),
     tagTypes: ["User"],
     endpoints: (builder) => ({
         login: builder.mutation({
             query: (credentials) => ({
                 url: "login",
                 method: "POST",
-                body: credentials
+                data: credentials
             }),
             invalidatesTags: () => [{type: "User", id: "LIST"}]
         }),

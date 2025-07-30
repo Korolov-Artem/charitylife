@@ -1,9 +1,25 @@
-import {useGetArticlesQuery} from "../services/blogApi";
+import {useGetArticlesQuery} from "../services/articlesApi.ts";
+import {useEffect, useState} from "react";
+import {useNavigate} from "react-router-dom";
+import Loader from "../assets/Loader.tsx";
 
 const NewArticle = () => {
+    const [clickData, setClickData] = useState(false);
+    const navigate = useNavigate();
+
+    const handleClick = () => {
+        setClickData(true);
+    }
+
+    useEffect(() => {
+        if (clickData) {
+            navigate(`/${mostRecentArticle.id}`);
+        }
+    }, [clickData, setClickData]);
+
     const {data: articles, isLoading, isError} = useGetArticlesQuery(undefined);
 
-    if (isLoading) return <div>"Loading data..."</div>;
+    if (isLoading) return <Loader/>;
 
     if (isError) {
         const errorMessage = "An unknown error has occurred";
@@ -13,6 +29,7 @@ const NewArticle = () => {
     const mostRecentArticle =
         articles && articles.length > 0 ? articles[0] : null;
 
+
     return mostRecentArticle ? (
         <div className="border-b-10 border-l-10 border-s-black relative self-start">
             <h1 className="-ml-130 mt-10 font-normal tracking-[1rem]">
@@ -20,18 +37,21 @@ const NewArticle = () => {
             </h1>
             <div>
                 <img
+                    onClick={handleClick}
                     src={mostRecentArticle.image}
                     alt=""
                     className="flex max-h-250 min-h-205 max-w-110 min-w-110 object-cover ml-8 mt-10 hover:cursor-pointer"
                 />
             </div>
             <div className="">
-                <h2 className="-mt-200 ml-130 max-w-130 text-left text-4xl font-light text-[#BD3900] leading-relaxed cursor-pointer hover:text-black hover:transition-colors hover:duration-200 hover:cursor-pointer">
+                <h2 className="-mt-200 ml-130 max-w-130 text-left text-4xl font-light text-[#BD3900] leading-relaxed cursor-pointer hover:text-black hover:transition-colors hover:duration-200 hover:cursor-pointer"
+                    onClick={handleClick}>
                     {mostRecentArticle.title}
                 </h2>
             </div>
             <div className="flex flex-col flex-grow min-h-130">
-                <p className="max-w-100 text-left font-[Cormorant_Garamond] ml-130 mt-20 text-[1.3rem] leading-[2] cursor-pointer hover:text-red-700 hover:transition-colors hover:duration-200 hover:cursor-pointer">
+                <p className="max-w-100 text-left font-[Cormorant_Garamond] ml-130 mt-20 text-[1.3rem] leading-[2] cursor-pointer hover:text-red-700 hover:transition-colors hover:duration-200 hover:cursor-pointer"
+                   onClick={handleClick}>
                     {mostRecentArticle.synopsis}
                 </p>
             </div>
