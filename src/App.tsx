@@ -7,6 +7,7 @@ import {BrowserRouter, Route, Routes} from "react-router-dom";
 import LoginForm from "./Components/LoginForm.tsx";
 import Article from "./Components/Article.tsx";
 import {AppLoaderManager} from "./Components/AppLoaderManager.tsx";
+import RegisterForm from "./Components/RegisterForm.tsx";
 
 function App() {
     return (
@@ -14,8 +15,9 @@ function App() {
             <BrowserRouter>
                 <div className="App">
                     <Routes>
-                        <Route path="/" element={[<SideBar/>, <HomePage/>, <Header/>, <Footer/>]}/>
+                        <Route path="/" element={[<SideBar/>, <Header/>, <HomePage/>, <Footer/>]}/>
                         <Route path="/login" element={<LoginForm/>}/>
+                        <Route path="/register" element={<RegisterForm/>}/>
                         <Route path="/:id" element={[<Article/>, <Header/>]}/>
                     </Routes>
                 </div>

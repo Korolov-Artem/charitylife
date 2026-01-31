@@ -14,9 +14,18 @@ export const authApi = createApi({
             }),
             invalidatesTags: () => [{type: "User", id: "LIST"}]
         }),
+        register: builder.mutation({
+            query: (credentials) => ({
+                url: "registration",
+                method: "POST",
+                data: credentials
+            }),
+            invalidatesTags: () => [{type: "User", id: "LIST"}]
+        })
     })
 })
 
 export const {
-    useLoginMutation
+    useLoginMutation,
+    useRegisterMutation
 } = authApi

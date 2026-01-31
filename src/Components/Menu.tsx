@@ -1,29 +1,11 @@
 import {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
 import AuthCheckComponent from "./AuthCheckComponent.tsx";
+import {useNavigate} from "react-router-dom";
 
 const Menu = ({onClose, isOpen}: { onClose: () => void, isOpen: boolean }) => {
     const isLoggedIn: boolean | null = AuthCheckComponent()
-
     const navigate = useNavigate();
-    const [clickData, setClickData] = useState(false)
-    const [url, setUrl] = useState("");
     const [isVisible, setIsVisible] = useState(false);
-
-    const handleHomeClick = () => {
-        setClickData(true);
-        setUrl("/")
-    }
-    const handleRegisterClick = () => {
-        setClickData(true);
-        setUrl("/register")
-    }
-    
-    useEffect(() => {
-        if (clickData && url.length > 0) {
-            navigate(`${url}`)
-        }
-    }, [clickData, navigate, url])
 
     useEffect(() => {
         if (isOpen) {
@@ -39,6 +21,11 @@ const Menu = ({onClose, isOpen}: { onClose: () => void, isOpen: boolean }) => {
             onClose()
         }, 300)
     }
+
+    const handleNavigation = (path: string) => {
+        handleClose();
+        navigate(path);
+    };
 
     return (
         <div className={`bg-[#ECEBDF] fixed inset-0 bg-opacity-95 z-40 transition-all duration-300 ease-in-out ${
@@ -78,36 +65,54 @@ const Menu = ({onClose, isOpen}: { onClose: () => void, isOpen: boolean }) => {
                 >
                     X
                 </h2>
-
-                {!isLoggedIn ?
-                    <h2 className="font-light text-5xl underline cursor-pointer text-[#BD3900] ml-[42.5vw] mt-[1vh] w-[10vw]"
-                        onClick={handleRegisterClick}
-                    >
-                        Реєстрація</h2>
-                    : <h2></h2>
-                }
-
-                {/*<div*/}
-                {/*    className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 text-[#BD3900] text-8xl bounce-arrow z-30">*/}
-                {/*    ↓*/}
-                {/*</div>*/}
-
                 <div className="h-full overflow-y-auto pt-[10vh] pb-[5vh]">
-                    <div className="flex flex-col items-center justify-start py-8">
+                    {!isLoggedIn ?
+                        <div onClick={() => {
+                            handleNavigation("/register")
+                        }}>
+                            <h3 className="text-center w-[1vw] ml-[39vw] -mt-[5vh] text-4xl text-[#BD3900] cursor-pointer tracking-[2vh] transition-all duration-300 hover:text-black">
+                                Реєстрація
+                            </h3>
+                        </div> :
+                        <h2></h2>
+                    }
+                    <div className="flex flex-col items-center justify-start py-8 mt-[2vh]">
                         <nav className="text-center text-6xl space-y-[8vh] tracking-widest w-[100vw]">
                             <h3 className="cursor-pointer transition-all duration-300 hover:text-[#BD3900]"
-                                onClick={handleHomeClick}
+                                onClick={() => {
+                                    handleNavigation("/")
+                                }}
                             >
                                 Додому</h3>
-                            <h3 className="cursor-pointer transition-all duration-300 hover:text-[#BD3900]">
+                            <h3 className="cursor-pointer transition-all duration-300 hover:text-[#BD3900]"
+                                onClick={() => {
+                                    handleNavigation("/design")
+                                }}
+                            >
                                 Дизайн</h3>
-                            <h3 className="cursor-pointer transition-all duration-300 hover:text-[#BD3900]">
+                            <h3 className="cursor-pointer transition-all duration-300 hover:text-[#BD3900]"
+                                onClick={() => {
+                                    handleNavigation("/theme/health")
+                                }}
+                            >
                                 Здоровʼя</h3>
-                            <h3 className="cursor-pointer transition-all duration-300 hover:text-[#BD3900]">
+                            <h3 className="cursor-pointer transition-all duration-300 hover:text-[#BD3900]"
+                                onClick={() => {
+                                    handleNavigation("/theme/travel")
+                                }}
+                            >
                                 Подорожі</h3>
-                            <h3 className="cursor-pointer transition-all duration-300 hover:text-[#BD3900]">
+                            <h3 className="cursor-pointer transition-all duration-300 hover:text-[#BD3900]"
+                                onClick={() => {
+                                    handleNavigation("/theme/relationships")
+                                }}
+                            >
                                 Відносини</h3>
-                            <h3 className="cursor-pointer transition-all duration-300 hover:text-[#BD3900]">
+                            <h3 className="cursor-pointer transition-all duration-300 hover:text-[#BD3900]"
+                                onClick={() => {
+                                    handleNavigation("/theme/food")
+                                }}
+                            >
                                 Їжа</h3>
                         </nav>
                     </div>

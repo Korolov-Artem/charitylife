@@ -5,4 +5,5 @@ export type ArticleType = {
     theme: string
     synopsis: string
     image: string
+    dataPublished: string
 }

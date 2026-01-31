@@ -1,7 +1,7 @@
 import {ReactNode, useEffect, useState} from "react";
-import Loader from "../assets/Loader.tsx";
 import {useSelector} from "react-redux";
 import {RootState} from "../redux/store.ts";
+import Loader from "../assets/Loader.tsx";
 
 
 export const AppLoaderManager = ({children}: { children: ReactNode }) => {
@@ -51,7 +51,25 @@ export const AppLoaderManager = ({children}: { children: ReactNode }) => {
 
     const isAppLoading = isFetching || !imagesLoaded
 
-    if (isAppLoading) return <Loader/>
-
-    return <>{children}</>
+    return (
+        <>
+            {isAppLoading && (
+                <div style={{
+                    position: "fixed",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    backgroundColor: "rgba(255, 255, 255, 0.8)", // Semi-transparent white
+                    zIndex: 9999, // Ensure it covers everything
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center"
+                }}>
+                    <Loader/>
+                </div>
+            )}
+            {children}
+        </>
+    )
 }

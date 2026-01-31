@@ -4,6 +4,9 @@
     margin-left: 1vw;
     grid-area: SideBar;
     border-bottom: 1vh solid black;
+    border-right: 1vh solid black;
+    position: relative;
+    z-index: 20;
 }
 
 .SideBar__Topic {

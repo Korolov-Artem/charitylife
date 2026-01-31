@@ -22,6 +22,14 @@ export const articlesApi = createApi({
             }),
             providesTags: (id) => [{type: "Article", id}],
         }),
+        getArticlesByTheme: builder.query({
+            query: ({theme, page}) => ({
+                url: `articles/theme/${theme}?page=${page}`,
+                method: "GET",
+            }),
+            providesTags: (arg) =>
+                [{type: "Article", id: arg.theme}],
+        }),
         createArticle: builder.mutation({
             query: (newArticle) => ({
                 url: "articles",
@@ -60,6 +68,7 @@ export const articlesApi = createApi({
 export const {
     useGetArticlesQuery,
     useGetArticleByIdQuery,
+    useGetArticlesByThemeQuery,
     useCreateArticleMutation,
     useUpdateArticleMutation,
     useDeleteArticleMutation,

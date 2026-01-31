@@ -31,7 +31,7 @@ const NewArticle = () => {
 
 
     return mostRecentArticle ? (
-        <div className="border-b-10 border-l-10 border-s-black relative self-start">
+        <div className="border-b-10 border-s-black relative self-start">
             <h1 className="-ml-130 mt-10 font-normal tracking-[1rem]">
                 Найновіша Стаття
             </h1>
