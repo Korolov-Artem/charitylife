@@ -24,6 +24,7 @@ type axiosQueryArgs = {
     method: AxiosRequestConfig["method"];
     data?: unknown;
     params?: unknown;
+    headers?: AxiosRequestConfig["headers"];
 };
 
 export const axiosBaseQuery = ({baseUrl} = {baseUrl: ""}) => {
@@ -32,6 +33,7 @@ export const axiosBaseQuery = ({baseUrl} = {baseUrl: ""}) => {
                       method,
                       data,
                       params,
+                      headers,
                   }: axiosQueryArgs): Promise<AxiosBaseQueryResult> => {
         try {
             const result = await axiosInstance({
@@ -39,6 +41,7 @@ export const axiosBaseQuery = ({baseUrl} = {baseUrl: ""}) => {
                 method,
                 data,
                 params,
+                headers,
             });
             return {data: result.data};
         } catch (axiosError) {

@@ -62,6 +62,20 @@ export const articlesApi = createApi({
                 {type: "Article", id},
             ],
         }),
+        uploadImage: builder.mutation<{ url: string, filename: string }, File>({
+            query: (file: File) => {
+                const formData = new FormData()
+                formData.append("file", file)
+                return {
+                    url: `upload/`,
+                    method: "POST",
+                    data: formData,
+                    headers: {
+                        "Content-Type": undefined,
+                    } as never,
+                }
+            }
+        })
     }),
 });
 
@@ -72,4 +86,5 @@ export const {
     useCreateArticleMutation,
     useUpdateArticleMutation,
     useDeleteArticleMutation,
+    useUploadImageMutation,
 } = articlesApi;

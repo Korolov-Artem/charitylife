@@ -46,7 +46,7 @@ const LoginForm = () => {
                     deviceId: response.deviceId
                 }))
             } else {
-                setFormError("Login successfully but no authToken received");
+                setFormError("Login successful, but no authToken received");
             }
             navigate("/");
         } catch (error: any) {
