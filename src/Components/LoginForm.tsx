@@ -38,12 +38,15 @@ const LoginForm = () => {
 
             if (response.accessToken) {
                 localStorage.setItem("authToken", response.accessToken)
+                localStorage.setItem("userRole", response.role)
+
                 if (response.deviceId) {
                     localStorage.setItem("deviceId", response.deviceId)
                 }
                 dispatch(setCredentials({
                     accessToken: response.accessToken,
-                    deviceId: response.deviceId
+                    deviceId: response.deviceId,
+                    role: response.role
                 }))
             } else {
                 setFormError("Login successful, but no authToken received");

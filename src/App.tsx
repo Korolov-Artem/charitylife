@@ -8,6 +8,8 @@ import LoginForm from "./Components/LoginForm.tsx";
 import Article from "./Components/Article.tsx";
 import {AppLoaderManager} from "./Components/AppLoaderManager.tsx";
 import RegisterForm from "./Components/RegisterForm.tsx";
+import RequireAdmin from "./Components/RequireAdmin.tsx";
+import PublishPage from "./Components/PublishPage.tsx";
 
 function App() {
     return (
@@ -19,6 +21,9 @@ function App() {
                         <Route path="/login" element={<LoginForm/>}/>
                         <Route path="/register" element={<RegisterForm/>}/>
                         <Route path="/:id" element={[<Article/>, <Header/>]}/>
+                        <Route element={<RequireAdmin/>}>
+                            <Route path="/publish" element={<PublishPage/>}/>
+                        </Route>
                     </Routes>
                 </div>
             </BrowserRouter>

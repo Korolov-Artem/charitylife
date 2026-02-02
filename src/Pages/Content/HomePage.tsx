@@ -1,7 +1,6 @@
 import NewArticle from "../../Components/NewArticle";
 import "./HomePage.css";
 import ArticlesThemes from "../../Components/ArticlesThemes.tsx";
-import AddArticle from "../../Components/AddArticle.tsx";
 
 const Content = () => {
     return (
@@ -18,7 +17,6 @@ const Content = () => {
                 border: "2px solid red" // Red border to make it obvious
             }}>
                 <h3>Dev Upload Tool</h3>
-                <AddArticle/>
             </div>
         </div>
     );
