@@ -1,9 +1,10 @@
 import {useEffect, useState} from "react";
-import AuthCheckComponent from "./AuthCheckComponent.tsx";
 import {useNavigate} from "react-router-dom";
+import useAuthCheck from "./AuthCheckComponent.tsx";
 
 const Menu = ({onClose, isOpen}: { onClose: () => void, isOpen: boolean }) => {
-    const isLoggedIn: boolean | null = AuthCheckComponent()
+    const isLoggedIn: boolean | null = useAuthCheck().isLoggedIn
+    const userRole: string | null = useAuthCheck().userRole
     const navigate = useNavigate();
     const [isVisible, setIsVisible] = useState(false);
 
@@ -72,6 +73,16 @@ const Menu = ({onClose, isOpen}: { onClose: () => void, isOpen: boolean }) => {
                         }}>
                             <h3 className="text-center w-[1vw] ml-[39vw] -mt-[5vh] text-4xl text-[#BD3900] cursor-pointer tracking-[2vh] transition-all duration-300 hover:text-black">
                                 Реєстрація
+                            </h3>
+                        </div> :
+                        <h2></h2>
+                    }
+                    {userRole === "admin" ?
+                        <div onClick={() => {
+                            handleNavigation("/publish")
+                        }}>
+                            <h3 className="text-center -mt-[5vh] text-4xl text-[#BD3900] cursor-pointer tracking-[2vh] transition-all duration-300 hover:text-black">
+                                Опублікувати Статтю
                             </h3>
                         </div> :
                         <h2></h2>

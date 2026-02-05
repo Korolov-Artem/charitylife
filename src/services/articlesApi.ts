@@ -34,9 +34,9 @@ export const articlesApi = createApi({
             query: (newArticle) => ({
                 url: "articles",
                 method: "POST",
-                data: undefined,
+                data: newArticle,
                 params: undefined,
-                body: newArticle,
+                // body: newArticle,
             }),
             invalidatesTags: ["Article"],
         }),

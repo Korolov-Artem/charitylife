@@ -81,6 +81,18 @@
     font-family: 'Lucida Sans';
 }
 
+.ql-editor {
+    text-align: center;
+}
+
+.ql-editor img {
+    max-width: 100%;
+    width: 30%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
 .ql-font-arial {
     font-family: 'Arial';
 }

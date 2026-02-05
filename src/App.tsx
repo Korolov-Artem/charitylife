@@ -22,7 +22,7 @@ function App() {
                         <Route path="/register" element={<RegisterForm/>}/>
                         <Route path="/:id" element={[<Article/>, <Header/>]}/>
                         <Route element={<RequireAdmin/>}>
-                            <Route path="/publish" element={<PublishPage/>}/>
+                            <Route path="/publish" element={[<PublishPage/>, <Header/>]}/>
                         </Route>
                     </Routes>
                 </div>

@@ -3,6 +3,8 @@ import ReactQuill, {Quill} from "react-quill-new"
 import {useMemo, useRef} from "react";
 import {useUploadImageMutation} from "../services/articlesApi.ts";
 
+const metaUrl = import.meta.env.VITE_API_URL || "http://localhost:3000"
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const Size = Quill.import('attributors/style/size') as any
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,7 +40,7 @@ export const Editor = ({value, onChange}: EditorProps) => {
 
                 try {
                     const result = await uploadImage(file).unwrap()
-                    const url = `http://localhost:3000${result.url}`
+                    const url = `${metaUrl}${result.url}`
 
                     const quill = quillRef.current?.getEditor()
                     const range = quill?.getSelection()
@@ -67,17 +69,17 @@ export const Editor = ({value, onChange}: EditorProps) => {
                 image: imageHandler,
             }
         }
-    }), [])
+    }), [uploadImage])
 
     return (
-        <div className="h-64 mb-12">
+        <div className="h-[80vh] w-[50vw] mt-[-43vh] ml-[22.5vw]">
             <ReactQuill
                 ref={quillRef}
                 theme="snow"
                 value={value}
                 onChange={onChange}
                 modules={modules}
-                className="h-full"
+                className="h-full bg-white"
             />
         </div>
     )
