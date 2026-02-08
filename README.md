@@ -1,54 +1,60 @@
-# React + TypeScript + Vite
+# 📝 Modern Blog CMS - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A robust Content Management System (CMS) interface built with **React** and **TypeScript**. This application allows administrators to draft, format, and publish articles with rich media support, while providing a clean reading experience for users.
 
-Currently, two official plugins are available:
+> 🚧 **Status:** Work in Progress (Active Development)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Key Features
 
-## Expanding the ESLint configuration
+* **🔐 Authentication & Security:**
+    * Secure Login/Registration with JWT handling.
+    * Role-Based Access Control (RBAC) protecting Admin routes.
+    * Automatic token refresh (silent authentication).
+* **✍️ Rich Text Editor (Custom Implementation):**
+    * Integrated **React-Quill** for content creation.
+    * **Custom Image Handler:** Intercepts image drops to upload files to the server immediately (returning a URL) instead of storing heavy Base64 strings in the database.
+* **🎨 UI/UX:**
+    * Fully responsive design using **Tailwind CSS**.
+    * Dynamic image previews and cover image uploads.
+* **Rx State Management:**
+    * Powered by **Redux Toolkit** and **RTK Query** for efficient data fetching and caching.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🛠️ Tech Stack
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+* **Core:** React, TypeScript, Vite
+* **State:** Redux Toolkit, RTK Query
+* **Styling:** Tailwind CSS
+* **Forms & Editor:** React-Quill, React Hook Form (or custom validation)
+* **Routing:** React Router DOM
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🚀 Getting Started
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1.  **Clone the repository**
+    ```bash
+    git clone [https://github.com/yourusername/project-frontend.git](https://github.com/yourusername/project-frontend.git)
+    cd project-frontend
+    ```
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+2.  **Install Dependencies**
+    ```bash
+    npm install
+    ```
+
+3.  **Environment Setup**
+    Create a `.env` file in the root:
+    ```env
+    VITE_API_URL=http://localhost:3000
+    ```
+
+4.  **Run the App**
+    ```bash
+    npm run dev
+    ```
+
+## 🔮 Roadmap / To-Do
+
+* [ ] Add "Edit Article" functionality.
+* [ ] Implement Dark Mode toggle.
+* [ ] Add public comments section for articles.
+* [ ] Improve mobile responsiveness for the dashboard.
+* [ ] Add content archive 
