@@ -1,6 +1,7 @@
 import {useGetArticleByIdQuery} from "../services/articlesApi.ts";
 import {useParams} from "react-router-dom";
 import Suggestions from "./Suggestions.tsx";
+import {getImageUrl} from "./getImageUrl.ts";
 
 const Article = () => {
     const {id} = useParams<{ id: string }>();
@@ -37,7 +38,7 @@ const Article = () => {
                 >{article.title}</h1>
             </div>
             <div className="flex items-center justify-center">
-                <img src={article.image} alt=""
+                <img src={getImageUrl(article.image)} alt=""
                      className="max-h-250 min-h-205 max-w-160 min-w-160 object-cover mt-15 ml-13"
                 />
             </div>

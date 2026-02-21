@@ -27,8 +27,14 @@ export const articlesApi = createApi({
                 url: `articles/theme/${theme}?page=${page}`,
                 method: "GET",
             }),
-            providesTags: (arg) =>
-                [{type: "Article", id: arg.theme}],
+            providesTags: (arg) => [{type: "Article", id: arg?.theme}],
+        }),
+        getRandomArticles: builder.query({
+            query: ({limit}) => ({
+                url: `articles/random?limit=${limit}`,
+                method: "GET"
+            }),
+            providesTags: ["Article"]
         }),
         createArticle: builder.mutation({
             query: (newArticle) => ({
@@ -67,7 +73,7 @@ export const articlesApi = createApi({
                 const formData = new FormData()
                 formData.append("file", file)
                 return {
-                    url: `upload/`,
+                    url: `upload`,
                     method: "POST",
                     data: formData,
                     headers: {
@@ -84,6 +90,7 @@ export const {
     useGetArticleByIdQuery,
     useGetArticlesByThemeQuery,
     useCreateArticleMutation,
+    useGetRandomArticlesQuery,
     useUpdateArticleMutation,
     useDeleteArticleMutation,
     useUploadImageMutation,

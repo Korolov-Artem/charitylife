@@ -3,6 +3,14 @@ import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import Loader from "../assets/Loader.tsx";
 
+const getImageUrl = (path: string | undefined) => {
+    if (!path) return "";
+    const cleanPath = path.replace(/&#x2F;/g, "/").replace(/"/g, "");
+    if (cleanPath.startsWith("http")) return cleanPath;
+    const normalizedPath = cleanPath.startsWith("/") ? cleanPath : `/${cleanPath}`;
+    return `http://localhost:3000${normalizedPath}`;
+}
+
 const NewArticle = () => {
     const [clickData, setClickData] = useState(false);
     const navigate = useNavigate();
@@ -36,12 +44,19 @@ const NewArticle = () => {
                 Найновіша Стаття
             </h1>
             <div>
-                <img
-                    onClick={handleClick}
-                    src={mostRecentArticle.image}
-                    alt=""
-                    className="flex max-h-250 min-h-205 max-w-110 min-w-110 object-cover ml-8 mt-10 hover:cursor-pointer"
-                />
+                {mostRecentArticle.image ? (
+                    <img
+                        onClick={handleClick}
+                        src={getImageUrl(mostRecentArticle.image)}
+                        alt={mostRecentArticle.title}
+                        className="flex max-h-250 min-h-205 max-w-110 min-w-110 object-cover ml-8 mt-10 hover:cursor-pointer"
+                    />
+                ) : (
+                    <div
+                        className="flex max-h-250 min-h-205 max-w-110 min-w-110 bg-gray-200 ml-8 mt-10 items-center justify-center">
+                        <p className="text-gray-400">No Image Available</p>
+                    </div>
+                )}
             </div>
             <div className="">
                 <h2 className="-mt-200 ml-130 max-w-130 text-left text-4xl font-light text-[#BD3900] leading-relaxed cursor-pointer hover:text-black hover:transition-colors hover:duration-200 hover:cursor-pointer"

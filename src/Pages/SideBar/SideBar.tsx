@@ -9,6 +9,7 @@ const SideBar = () => {
     const {data: articles, isLoading, isError} = useGetArticlesQuery(undefined)
 
     const [clickData, setClickData] = useState(false);
+
     const [id, setId] = useState("");
     const navigate = useNavigate();
 
@@ -16,6 +17,7 @@ const SideBar = () => {
         setClickData(true);
         setId(id)
     }
+
 
     useEffect(() => {
         if (clickData) {
@@ -41,10 +43,18 @@ const SideBar = () => {
         <div className="SideBar">
             <div className="SideBar__Topic">
                 <div className="SideBar__Topic_Text">
-                    <h2 className="text-2xl font-light mt-2">Всі Статті</h2>
+                    <h2 className="text-2xl font-light mt-2"
+                        onClick={() => {
+                            navigate("/allArticles")
+                        }}
+                    >Всі Статті</h2>
                 </div>
                 <div className="SideBar__Topic_Count">
-                    <h2 className="text-2xl font-light mt-2">(72)</h2>
+                    <h2 className="text-2xl font-light mt-2"
+                        onClick={() => {
+                            navigate("/allArticles")
+                        }}
+                    >(72)</h2>
                 </div>
             </div>
             <div>
