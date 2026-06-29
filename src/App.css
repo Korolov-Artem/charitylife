@@ -1,21 +1,4 @@
 .App {
-    width: 100vw;
-    background-color: #ECEBDF;
-    font: 400 14px "Nyght Serif";
+    font-family: "Nyght Serif", serif;
     color: black;
-    text-align: center;
-
-    ::selection {
-        background: #BD3900;
-        color: #faeeee;
-    }
-
-    display: grid;
-    grid-template-columns: 1.5fr 2fr 2fr;
-    grid-template-rows: 6vh auto min-content;
-    gap: 0 0;
-    grid-template-areas:
-    "Header Header Header"
-    "SideBar Content Content"
-    "Footer Footer Footer";
 }

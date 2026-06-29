@@ -1,94 +1,180 @@
-import {useGetArticlesQuery} from "../services/articlesApi.ts";
-import {useEffect, useState} from "react";
-import {useNavigate} from "react-router-dom";
-import Loader from "../assets/Loader.tsx";
+import { useGetArticlesQuery } from "../services/articlesApi.ts";
+import { useNavigate } from "react-router-dom";
+import { getImageUrl } from "./getImageUrl.ts";
+import { ArticleType } from "../types/ArticleType.ts";
+import { motion } from "framer-motion";
 
-const getImageUrl = (path: string | undefined) => {
-    if (!path) return "";
-    const cleanPath = path.replace(/&#x2F;/g, "/").replace(/"/g, "");
-    if (cleanPath.startsWith("http")) return cleanPath;
-    const normalizedPath = cleanPath.startsWith("/") ? cleanPath : `/${cleanPath}`;
-    return `http://localhost:3000${normalizedPath}`;
-}
+const formatDate = (dateString: string) => {
+  return new Date(dateString)
+    .toLocaleDateString("uk-UA", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+    })
+    .toUpperCase();
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      delayChildren: 0.3,
+      staggerChildren: 0.2,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } },
+};
 
 const NewArticle = () => {
-    const [clickData, setClickData] = useState(false);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+  const {
+    data: articles,
+    isLoading,
+    isError,
+  } = useGetArticlesQuery({ pgSize: 10 });
 
-    const handleClick = () => {
-        setClickData(true);
-    }
-
-    useEffect(() => {
-        if (clickData) {
-            navigate(`/${mostRecentArticle.id}`);
-        }
-    }, [clickData, setClickData]);
-
-    const {data: articles, isLoading, isError} = useGetArticlesQuery(undefined);
-
-    if (isLoading) return <Loader/>;
-
-    if (isError) {
-        const errorMessage = "An unknown error has occurred";
-        return <div>{errorMessage}</div>;
-    }
-
-    const mostRecentArticle =
-        articles && articles.length > 0 ? articles[0] : null;
-
-
-    return mostRecentArticle ? (
-        <div className="border-b-10 border-s-black relative self-start">
-            <h1 className="-ml-130 mt-10 font-normal tracking-[1rem]">
-                Найновіша Стаття
-            </h1>
-            <div>
-                {mostRecentArticle.image ? (
-                    <img
-                        onClick={handleClick}
-                        src={getImageUrl(mostRecentArticle.image)}
-                        alt={mostRecentArticle.title}
-                        className="flex max-h-250 min-h-205 max-w-110 min-w-110 object-cover ml-8 mt-10 hover:cursor-pointer"
-                    />
-                ) : (
-                    <div
-                        className="flex max-h-250 min-h-205 max-w-110 min-w-110 bg-gray-200 ml-8 mt-10 items-center justify-center">
-                        <p className="text-gray-400">No Image Available</p>
-                    </div>
-                )}
-            </div>
-            <div className="">
-                <h2 className="-mt-200 ml-130 max-w-130 text-left text-4xl font-light text-[#BD3900] leading-relaxed cursor-pointer hover:text-black hover:transition-colors hover:duration-200 hover:cursor-pointer"
-                    onClick={handleClick}>
-                    {mostRecentArticle.title}
-                </h2>
-            </div>
-            <div className="flex flex-col flex-grow min-h-130">
-                <p className="max-w-100 text-left font-[Cormorant_Garamond] ml-130 mt-20 text-[1.3rem] leading-[2] cursor-pointer hover:text-red-700 hover:transition-colors hover:duration-200 hover:cursor-pointer"
-                   onClick={handleClick}>
-                    {mostRecentArticle.synopsis}
-                </p>
-            </div>
-            <div className="absolute bottom-4 flex justify-between items-center mt-8">
-                <p className="text-[1rem] font-bold ml-130">
-                    {mostRecentArticle.author}
-                </p>
-                <p className="ml-100 font-bold mr-10 text-[#BD3900] text-[1rem]">
-                    {new Date(mostRecentArticle.dataPublished).toLocaleDateString(
-                        "uk-UA",
-                        {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                        }
-                    )}
-                </p>
-            </div>
-        </div>
-    ) : (
-        <p>No articles found</p>
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 xl:gap-12 pb-16 h-screen">
+        <div className="xl:col-span-7 h-[65vh] bg-[#fafafa] animate-pulse"></div>
+        <div className="xl:col-span-5 h-[65vh] bg-[#fafafa] animate-pulse"></div>
+      </div>
     );
+  }
+
+  if (isError) {
+    return (
+      <div className="p-4 font-sans text-sm tracking-widest uppercase text-zinc-500">
+        Error loading articles
+      </div>
+    );
+  }
+
+  if (!articles || articles.length === 0) {
+    return (
+      <p className="py-10 text-gray-500 font-sans text-sm tracking-widest uppercase">
+        No articles found
+      </p>
+    );
+  }
+
+  const mainArticle = articles[0];
+  const secondaryArticles = articles.slice(1, 3);
+
+  const handleNavigate = (id: string) => {
+    navigate(`/${id}`);
+  };
+
+  console.log(
+    "ARTICLES:",
+    articles,
+    "isLoading:",
+    isLoading,
+    "isError:",
+    isError,
+  );
+
+  return (
+    <motion.div
+      key={articles[0].id} // ← forces animation to re-run when data loads
+      className="grid grid-cols-1 xl:grid-cols-12 gap-8 xl:gap-12 pb-16"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible" // ← back to always "visible", key handles the reset
+    >
+      {/* ---------------- LEFT SIDE: MAIN ARTICLE ---------------- */}
+      <motion.div
+        variants={itemVariants}
+        className="xl:col-span-7 flex flex-col pt-4 h-full"
+      >
+        <h2
+          className="text-4xl lg:text-[4rem] font-serif font-normal text-black leading-[1.05] tracking-tight cursor-pointer hover:text-zinc-600 transition-colors duration-300 mb-6 break-words line-clamp-4"
+          onClick={() => handleNavigate(mainArticle.id)}
+        >
+          {mainArticle.title}
+        </h2>
+
+        <div
+          className="w-full mt-[2.5vh] relative group overflow-hidden cursor-pointer"
+          onClick={() => handleNavigate(mainArticle.id)}
+        >
+          <div className="absolute top-0 left-0 bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest z-10 border border-black/15">
+            {mainArticle.theme || "Design"}
+          </div>
+
+          {mainArticle.image ? (
+            <img
+              src={getImageUrl(mainArticle.image)}
+              alt={mainArticle.title}
+              className="w-full aspect-[4/3] lg:h-[65.5vh] object-cover group-hover:scale-105 transition-transform duration-[1.5s] ease-out"
+            />
+          ) : (
+            <div className="w-full aspect-[4/3] bg-zinc-100 flex items-center justify-center">
+              <span className="text-zinc-400 font-sans tracking-widest uppercase text-xs">
+                No Image
+              </span>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-auto">
+          <hr className="border-t border-black/20 mt-4 mb-3" />
+          <div className="text-[10px] uppercase tracking-[0.2em] font-bold font-sans text-black">
+            {formatDate(mainArticle.dataPublished)}
+          </div>
+        </div>
+      </motion.div>
+
+      {/* ---------------- RIGHT SIDE: SECONDARY ARTICLES ---------------- */}
+      <div className="xl:col-span-5 flex flex-col gap-12 pt-4 h-full">
+        {secondaryArticles.map((article: ArticleType) => (
+          <motion.div
+            variants={itemVariants}
+            key={article.id}
+            className="flex flex-col h-full"
+          >
+            <h3
+              className="text-2xl lg:text-3xl font-serif font-normal text-black leading-[1.1] cursor-pointer hover:text-zinc-600 transition-colors mb-4 break-words line-clamp-3"
+              onClick={() => handleNavigate(article.id)}
+            >
+              {article.title}
+            </h3>
+
+            <div
+              className="w-full relative group overflow-hidden cursor-pointer"
+              onClick={() => handleNavigate(article.id)}
+            >
+              <div className="absolute top-0 left-0 bg-white px-2 py-1 text-[8px] font-bold uppercase tracking-widest z-10 border border-black/15">
+                {article.theme || "Feature"}
+              </div>
+
+              {article.image ? (
+                <img
+                  src={getImageUrl(article.image)}
+                  alt={article.title}
+                  className="w-full aspect-[4/3] object-cover group-hover:scale-105 transition-transform duration-[1.5s] ease-out"
+                />
+              ) : (
+                <div className="w-full aspect-[4/3] bg-zinc-100 flex items-center justify-center"></div>
+              )}
+            </div>
+
+            <div className="mt-auto">
+              <hr className="border-t border-black/20 mt-4 mb-3" />
+              <div className="text-[10px] uppercase tracking-[0.2em] font-bold font-sans text-black">
+                {formatDate(article.dataPublished)}
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
+  );
 };
 
 export default NewArticle;
