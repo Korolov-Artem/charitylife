@@ -6,11 +6,20 @@ import { getImageUrl } from "./getImageUrl.ts";
 import { motion } from "framer-motion";
 
 // Converts escaped HTML from the database back into real HTML tags
+// AND cleans up invisible non-breaking spaces that break layouts!
 const decodeHTML = (html: string) => {
   if (typeof document === "undefined" || !html) return html;
+
   const txt = document.createElement("textarea");
   txt.innerHTML = html;
-  return txt.value;
+
+  // 1. Extract the raw text from the textarea
+  let decodedString = txt.value;
+
+  // 2. Replace all HTML and Unicode non-breaking spaces with standard spaces
+  decodedString = decodedString.replace(/&nbsp;/g, " ").replace(/\u00A0/g, " ");
+
+  return decodedString;
 };
 
 // Animation Variants
@@ -42,24 +51,18 @@ const imageReveal = {
 
 const Article = () => {
   const { id } = useParams<{ id: string }>();
-
-  // 2. Create a reference we can attach to our HTML elements
   const topRef = useRef<HTMLDivElement>(null);
 
   const { data: article, isLoading, isError } = useGetArticleByIdQuery(id);
 
-  // 3. Update the useEffect to watch BOTH 'id' and 'isLoading'
   useEffect(() => {
     if (topRef.current) {
-      // This will now fire when the loading screen appears,
-      // AND fire again the moment the real article appears!
       topRef.current.scrollIntoView({ behavior: "instant", block: "start" });
     }
   }, [id, isLoading]);
 
   if (isLoading)
     return (
-      // 4. Attach the ref to the loading screen so it centers nicely
       <div
         ref={topRef}
         className="h-screen flex items-center justify-center font-bold uppercase tracking-widest text-xs"
@@ -78,12 +81,11 @@ const Article = () => {
   return (
     <motion.div
       key={id}
-      className="bg-[#fafafa] min-h-screen pb-20 relative" // Added 'relative' here just in case
+      className="bg-[#fafafa] min-h-screen pb-20 relative"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
-      {/* 5. Attach the ref to our invisible anchor at the absolute top of the article */}
       <div ref={topRef} className="absolute top-0 w-full h-0" />
 
       {/* --- ARTICLE HEADER: Author & Date --- */}
@@ -109,7 +111,6 @@ const Article = () => {
       </motion.div>
 
       {/* --- TITLE: Centered and Narrow --- */}
-      {/* UPDATED: Increased max width to 4xl so long titles look more balanced */}
       <motion.div
         variants={textFadeUp}
         className="max-w-4xl mx-auto text-center mb-16 px-6 lg:px-0"
@@ -132,7 +133,6 @@ const Article = () => {
       </motion.div>
 
       {/* --- CAPTION / CREDITS --- */}
-      {/* UPDATED: Increased width to match the body text */}
       <motion.div
         variants={textFadeUp}
         className="max-w-3xl mx-auto text-center mb-16 px-6 lg:px-0"
@@ -143,16 +143,21 @@ const Article = () => {
       </motion.div>
 
       {/* --- BODY CONTENT: Quill Ready --- */}
-      {/* UPDATED: Increased max-w-2xl to max-w-3xl for a wider, more relaxed reading column */}
       <motion.div
         variants={textFadeUp}
-        className="max-w-3xl mx-auto px-6 text-lg lg:text-xl leading-[1.8] font-light text-zinc-800
-          [&>p]:mb-8 [&>p]:break-all md:[&>p]:break-words
-          [&>p:first-of-type]:first-letter:text-7xl [&>p:first-of-type]:first-letter:font-serif [&>p:first-of-type]:first-letter:mr-3 [&>p:first-of-type]:first-letter:float-left [&>p:first-of-type]:first-letter:text-[#BD3900]
-          [&>img]:w-full [&>img]:my-16 [&>img]:object-cover [&>img]:bg-zinc-100
-          [&>blockquote]:border-l-4 [&>blockquote]:border-[#BD3900] [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:my-12 [&>blockquote]:text-2xl [&>blockquote]:text-black
-          [&>h2]:text-3xl [&>h2]:font-serif [&>h2]:mt-16 [&>h2]:mb-6
-          [&>h3]:text-2xl [&>h3]:font-serif [&>h3]:mt-12 [&>h3]:mb-4"
+        // ADDED 'w-full' to enforce the container limits.
+        // ADDED 'break-words' to safely break stubborn Wikipedia text without chopping normal words.
+        className="w-full max-w-3xl mx-auto px-6 text-lg lg:text-xl leading-[1.8] font-light text-zinc-800 break-words
+                [&>p]:mb-8
+
+                /* Link styling: Safe hover state so only the hovered link turns black */
+                [&_a]:text-[#BD3900] [&_a]:underline [&_a]:underline-offset-4 [&_a]:decoration-1 [&_a:hover]:text-black [&_a]:transition-colors
+
+                [&>p:first-of-type]:first-letter:text-7xl [&>p:first-of-type]:first-letter:font-serif [&>p:first-of-type]:first-letter:mr-3 [&>p:first-of-type]:first-letter:float-left [&>p:first-of-type]:first-letter:text-[#BD3900]
+                [&>img]:w-full [&>img]:my-16 [&>img]:object-cover [&>img]:bg-zinc-100
+                [&>blockquote]:border-l-4 [&>blockquote]:border-[#BD3900] [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:my-12 [&>blockquote]:text-2xl [&>blockquote]:text-black
+                [&>h2]:text-3xl [&>h2]:font-serif [&>h2]:mt-16 [&>h2]:mb-6
+                [&>h3]:text-2xl [&>h3]:font-serif [&>h3]:mt-12 [&>h3]:mb-4"
         dangerouslySetInnerHTML={{ __html: decodeHTML(article.content) }}
       />
 

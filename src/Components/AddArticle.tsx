@@ -1,128 +1,195 @@
-import {ChangeEvent, FormEvent, useEffect, useState} from "react";
-import {useCreateArticleMutation, useUploadImageMutation} from "../services/articlesApi.ts";
-import {Editor} from "./Editor.tsx";
-import {useNavigate} from "react-router-dom";
+import React, { ChangeEvent, FormEvent, useState } from "react";
+import {
+  useCreateArticleMutation,
+  useUploadImageMutation,
+} from "../services/articlesApi.ts";
+import { Editor } from "./Editor.tsx";
+import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 const AddArticle = () => {
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [uploadImage, {isLoading: isUploading}] = useUploadImageMutation()
-    const [createArticle, {isLoading: isCreating}] = useCreateArticleMutation()
+  const [title, setTitle] = useState("");
+  const [synopsis, setSynopsis] = useState("");
+  const [theme, setTheme] = useState("");
+  const [content, setContent] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-    const [content, setContent] = useState("")
-    const [click, setClick] = useState<boolean>(false)
-    const [title, setTitle] = useState("")
-    const [synopsis, setSynopsis] = useState("")
-    const [theme, setTheme] = useState("")
+  // Replaced standard 'alert' with a state-driven error message for better UX
+  const [formError, setFormError] = useState<string | null>(null);
 
-    const navigate = useNavigate()
+  const [uploadImage, { isLoading: isUploading }] = useUploadImageMutation();
+  const [createArticle, { isLoading: isCreating }] = useCreateArticleMutation();
+  const navigate = useNavigate();
 
-    const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            setSelectedFile(e.target.files[0]);
-        }
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setSelectedFile(e.target.files[0]);
+      setFormError(null); // Clear errors when they select a file
+    }
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setFormError(null);
+
+    if (!selectedFile || !title || !content || !theme || !synopsis) {
+      setFormError("Please fill in all fields and select a cover image.");
+      return;
     }
 
-    const handleTitleChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-        setTitle(e.target.value)
+    try {
+      const uploadResponse = await uploadImage(selectedFile).unwrap();
+      const imageUrl = uploadResponse.url;
+
+      const articleData = {
+        title,
+        content,
+        synopsis,
+        theme,
+        image: imageUrl,
+      };
+
+      await createArticle(articleData).unwrap();
+      navigate("/");
+    } catch (error) {
+      console.error("Failed to publish:", error);
+      setFormError("An error occurred while publishing. Please try again.");
     }
-    const handleSynopsisChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-        setSynopsis(e.target.value)
-    }
-    const handleThemeChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-        setTheme(e.target.value)
-    }
+  };
 
-    const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault();
+  const isLoading = isUploading || isCreating;
 
-        if (!selectedFile || !title || !content || !theme) {
-            alert("Please fill in all fields and select a cover image.");
-            return;
-        }
+  return (
+    <div className="max-w-4xl mx-auto px-6 lg:px-0 pt-10">
+      {/* --- BACK BUTTON --- */}
+      {/* Direct navigation, no useEffect required! */}
+      <button
+        className="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#BD3900] transition-colors duration-300 mb-10"
+        onClick={() => navigate("/")}
+      >
+        ⇚ Back to Dashboard
+      </button>
 
-        try {
-            const uploadResponse = await uploadImage(selectedFile).unwrap();
-            const imageUrl = uploadResponse.url
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="mb-12 border-b border-black/10 pb-6">
+          <h1 className="text-4xl lg:text-5xl font-serif text-black tracking-tight">
+            Publish Editorial
+          </h1>
+        </div>
 
-            const articleData = {
-                title: title,
-                content: content,
-                synopsis: synopsis,
-                theme: theme,
-                image: imageUrl,
-            }
-
-            await createArticle(articleData).unwrap()
-            navigate("/")
-        } catch (error) {
-            console.error("Failed to publish:", error);
-            alert("An error occurred while publishing.");
-        }
-    }
-
-    const handleBackClick = () => {
-        setClick(true)
-    }
-    useEffect(() => {
-        if (click) {
-            navigate("/")
-        }
-    }, [click, navigate]);
-
-    const isLoading = isUploading || isCreating;
-
-    return (
-        <form onSubmit={handleSubmit}>
-            <div
-                className="text-black text-4xl flex mt-[3vh] ml-[4vw] font-light hover:text-[#BD3900] transition-all duration-300 cursor-pointer"
-                onClick={handleBackClick}
-            >
-                {"⇚ Назад"}
-            </div>
-            <div className="flex-col gap-8 mt-[5vh] ml-[3vw] flex">
-                <textarea
-                    onChange={handleTitleChange}
-                    placeholder={"Заголовок"}
-                    value={title}
-                    className="bg-white border-1 border-black resize-none w-[15vw] h-[8vh] overflow-scroll"
-                />
-                <textarea
-                    onChange={handleSynopsisChange}
-                    placeholder={"Синопсис"}
-                    value={synopsis}
-                    className="bg-white border-1 border-black resize-none w-[15vw] h-[8vh] overflow-scroll"
-                />
-                <textarea
-                    onChange={handleThemeChange}
-                    placeholder={"Тема"}
-                    value={theme}
-                    className="bg-white border-1 border-black resize-none w-[15vw] h-[8vh] overflow-scroll"
-                />
-            </div>
-            <div className="p-8 bg-[#ECEBDF] m-4">
-                <Editor value={content} onChange={setContent}/>
-            </div>
-            <div className="flex justify-between ml-[37vw] mr-[37vw]">
-                <label
-                    className="flex items-center justify-center !bg-red-700 text-white !text-xl font-medium rounded-lg w-[11vw] transition-all duration-300 cursor-pointer hover:bg-red-900">
-                    {selectedFile ? `${selectedFile.name}` : 'Обкладинка'}
-                    <input
-                        type="file"
-                        onChange={handleFileChange}
-                        className="hidden"
-                    />
-                </label>
-                <button
-                    type="submit"
-                    disabled={isLoading || !selectedFile}
-                    className="!bg-red-700 text-white !text-xl rounded-b-none transition-all duration-300 cursor-pointer hover:bg-red-900"
-                >
-                    {isLoading ? "Uploading..." : "Опублікувати"}
-                </button>
+        <form onSubmit={handleSubmit} className="space-y-10">
+          {/* --- METADATA GRID --- */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            {/* Title */}
+            <div className="col-span-1 md:col-span-2">
+              <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-2">
+                Article Title
+              </label>
+              <input
+                type="text"
+                value={title}
+                placeholder="Enter a captivating title..."
+                onChange={(e) => setTitle(e.target.value)}
+                className="w-full appearance-none border-b border-black/20 bg-transparent px-0 py-3 text-2xl font-serif text-black placeholder-gray-300 focus:border-[#BD3900] focus:outline-none transition-colors"
+              />
             </div>
 
+            {/* Theme */}
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-2">
+                Theme / Category
+              </label>
+              <input
+                type="text"
+                value={theme}
+                placeholder="e.g. Design, Health..."
+                onChange={(e) => setTheme(e.target.value)}
+                className="w-full appearance-none border-b border-black/20 bg-transparent px-0 py-3 text-lg text-black placeholder-gray-300 focus:border-[#BD3900] focus:outline-none transition-colors"
+              />
+            </div>
+
+            {/* Synopsis */}
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-2">
+                Short Synopsis
+              </label>
+              <input
+                type="text"
+                value={synopsis}
+                placeholder="A brief summary for the feed..."
+                onChange={(e) => setSynopsis(e.target.value)}
+                className="w-full appearance-none border-b border-black/20 bg-transparent px-0 py-3 text-lg text-black placeholder-gray-300 focus:border-[#BD3900] focus:outline-none transition-colors"
+              />
+            </div>
+          </div>
+
+          {/* --- COVER IMAGE UPLOAD --- */}
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-2">
+              Cover Image
+            </label>
+            <label className="flex flex-col items-center justify-center w-full h-32 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-[#BD3900] focus:outline-none">
+              <span className="flex items-center space-x-2">
+                <span className="font-medium text-gray-600">
+                  {selectedFile ? (
+                    <span className="text-[#BD3900] font-bold">
+                      {selectedFile.name}
+                    </span>
+                  ) : (
+                    "Click to browse for a high-res cover image"
+                  )}
+                </span>
+              </span>
+              <input
+                type="file"
+                onChange={handleFileChange}
+                className="hidden"
+                accept="image/*"
+              />
+            </label>
+          </div>
+
+          {/* --- RICH TEXT EDITOR --- */}
+          <div>
+            <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-2">
+              Article Body
+            </label>
+            {/* Wrapped the editor in a clean white box to separate it from the #fafafa background */}
+            <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden min-h-[400px]">
+              <Editor value={content} onChange={setContent} />
+            </div>
+          </div>
+
+          {/* --- ERROR MESSAGE --- */}
+          <AnimatePresence>
+            {formError && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="text-[#BD3900] text-sm font-serif italic text-center"
+              >
+                {formError}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* --- SUBMIT BUTTON --- */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-black text-white py-5 text-xs font-bold uppercase tracking-[0.2em] hover:cursor-pointer  hover:bg-[#BD3900] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? "Publishing to Archive..." : "Publish Article"}
+          </button>
         </form>
-    )
-}
+      </motion.div>
+    </div>
+  );
+};
 
-export default AddArticle
+export default AddArticle;

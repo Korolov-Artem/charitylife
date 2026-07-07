@@ -12,6 +12,7 @@ import AllArticles from "./Components/AllArticles.tsx";
 import MediaGallery from "./Components/MediaGallery.tsx";
 import Layout from "./Pages/Layout.tsx";
 import Preloader from "./Components/Preloader.tsx";
+import VisualIndex from "./Components/VisualIndex.tsx";
 
 function App() {
   const [isPreloading, setIsPreloading] = useState(true);
@@ -37,6 +38,7 @@ function App() {
 
               <Route path="/allArticles" element={<AllArticles />} />
               <Route path="/gallery" element={<MediaGallery />} />
+              <Route path="/archive" element={<VisualIndex />} />
             </Routes>
           </Layout>
         </BrowserRouter>

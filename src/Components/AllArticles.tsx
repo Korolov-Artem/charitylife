@@ -4,12 +4,26 @@ import { ArticleType } from "../types/ArticleType.ts";
 import { useIntersectionObserver } from "../hooks/useIntersectionObserver.ts";
 import { useNavigate } from "react-router-dom";
 import { getImageUrl } from "./getImageUrl.ts";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+
+const formatDate = (dateString: string) => {
+  return new Date(dateString)
+    .toLocaleDateString("uk-UA", {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+    })
+    .toUpperCase();
+};
 
 const AllArticles = () => {
   const [pageNumber, setPageNumber] = useState(1);
   const [articles, setArticles] = useState<ArticleType[]>([]);
   const [hasMore, setHasMore] = useState(true);
+
+  // Track which article is currently being hovered
+  const [hoveredArticleId, setHoveredArticleId] = useState<string | null>(null);
+
   const { targetRef, isIntersecting } = useIntersectionObserver();
   const navigate = useNavigate();
 
@@ -41,45 +55,67 @@ const AllArticles = () => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="max-w-7xl mx-auto pb-20"
+      className="max-w-5xl mx-auto pb-20 px-6 lg:px-0"
     >
       {/* HEADER SECTION */}
-      <div className="flex justify-between items-end mb-12 border-b border-black/10 pb-6 pt-4">
-        <h1 className="text-5xl font-serif tracking-tight text-black">
-          All Articles
-        </h1>
+      <div className="flex justify-between items-end mb-12 border-b border-black/10 pb-6 pt-10">
+        <div>
+          <h1 className="text-5xl lg:text-6xl font-serif tracking-tight text-black">
+            The Journal
+          </h1>
+          <p className="mt-2 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+            A chronological ledger of all publications
+          </p>
+        </div>
       </div>
 
-      {/* ARTICLES GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-16">
+      {/* TYPOGRAPHIC LEDGER (List View) */}
+      <div className="flex flex-col border-t border-black/10">
         {articles.map((article) => (
           <div
             key={article.id}
-            className="group cursor-pointer flex flex-col"
+            // INCREASED vertical padding (py-10 lg:py-12) to give larger text room to breathe
+            className="group relative border-b border-black/10 py-10 lg:py-12 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-6"
             onClick={() => navigate(`/${article.id}`)}
+            onMouseEnter={() => setHoveredArticleId(article.id)}
+            onMouseLeave={() => setHoveredArticleId(null)}
           >
-            {/* Image Container with Aspect Ratio and Hover Effect */}
-            <div className="aspect-[4/5] overflow-hidden bg-zinc-200 mb-6 shrink-0 relative">
-              {article.image ? (
-                <img
-                  src={getImageUrl(article.image)}
-                  alt={article.title}
-                  className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-zinc-400 text-[10px] uppercase tracking-widest">
-                  No Image
-                </div>
-              )}
+            {/* LEFT: Meta Data (Date & Theme) */}
+            <div className="md:w-1/4 flex flex-row md:flex-col justify-between md:justify-start gap-2 z-10 min-w-0">
+              <span className="text-[10px] uppercase tracking-widest text-gray-500 font-bold whitespace-nowrap">
+                {formatDate(article.dataPublished)}
+              </span>
+              <span className="text-[10px] uppercase tracking-widest text-[#BD3900] font-bold truncate">
+                {article.theme || "Editorial"}
+              </span>
             </div>
 
-            {/* Article Info */}
-            <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-2">
-              {article.theme || "Editorial"}
-            </p>
-            <h2 className="font-serif text-2xl leading-snug line-clamp-3 group-hover:text-[#BD3900] transition-colors duration-300">
-              {article.title}
-            </h2>
+            {/* CENTER: Typography Headline */}
+            <div className="md:w-3/4 z-10 min-w-0">
+              {/* INCREASED text size to text-4xl lg:text-5xl xl:text-6xl to fill the empty layout space */}
+              <h2 className="font-serif text-4xl lg:text-5xl xl:text-6xl text-black leading-tight group-hover:text-gray-500 transition-colors duration-300 pr-12 line-clamp-3 break-words">
+                {article.title}
+              </h2>
+            </div>
+
+            {/* THE MICRO-INTERACTION: Floating Image on Hover */}
+            <AnimatePresence>
+              {hoveredArticleId === article.id && article.image && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95, x: 20 }}
+                  animate={{ opacity: 1, scale: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.95, x: 20 }}
+                  transition={{ duration: 0.4, ease: "easeOut" }}
+                  className="hidden md:block absolute right-0 top-1/2 -translate-y-1/2 w-48 xl:w-56 aspect-[3/4] z-0 pointer-events-none shadow-2xl"
+                >
+                  <img
+                    src={getImageUrl(article.image)}
+                    alt={article.title}
+                    className="w-full h-full object-cover"
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         ))}
       </div>
@@ -90,13 +126,13 @@ const AllArticles = () => {
         className="h-32 flex items-center justify-center mt-10"
       >
         {isFetching && (
-          <p className="text-xs font-bold uppercase tracking-widest text-gray-400 animate-pulse">
-            Loading more...
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 animate-pulse">
+            Loading ledger...
           </p>
         )}
         {!hasMore && articles.length > 0 && (
-          <p className="text-xs font-bold uppercase tracking-widest text-gray-400">
-            End of Archive
+          <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
+            End of Journal
           </p>
         )}
       </div>

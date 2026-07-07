@@ -5,6 +5,8 @@ import { useGetArticlesQuery } from "../services/articlesApi";
 import { getImageUrl } from "../Components/getImageUrl";
 import { ArticleType } from "../types/ArticleType";
 import MediaCarousel from "../Components/MediaCarousel";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../redux/authSlice";
 
 const themes = [
   { id: "design", label: "Дизайн", marginClass: "ml-0" },
@@ -99,6 +101,7 @@ const FeaturedItem = ({
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
 
   const isHomePage = location.pathname === "/";
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true);
@@ -106,6 +109,16 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   // 1. ADDED: State to track if the right sidebar is currently being scrolled
   const [isSidebarScrolling, setIsSidebarScrolling] = useState(false);
   const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  const isAuthenticated = useSelector(
+    (state: any) => state.auth.isAuthenticated,
+  );
+  const userRole = useSelector((state: any) => state.auth.role); // <-- ADD THIS LINE
+
+  const handleLogout = () => {
+    dispatch(logout());
+    navigate("/");
+  };
 
   useEffect(() => {
     setIsLeftSidebarOpen(isHomePage);
@@ -247,22 +260,74 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               </motion.div>
             </div>
 
+            {/* Wrapper for utility links and copyright */}
             <motion.div
               animate={{ opacity: isLeftSidebarOpen ? 1 : 0 }}
               transition={{ duration: 0.15 }}
               className="flex flex-col"
             >
-              {/* 1. All Articles Link (ABOVE the line) */}
-              <div
-                className="mb-6 flex items-center cursor-pointer group" // Added mb-6 for spacing above the line
-                onClick={() => navigate("/allArticles")}
-              >
-                <span className="text-xs font-bold uppercase tracking-[0.15em] text-gray-500 group-hover:text-[#BD3900] transition-colors duration-300">
-                  Browse All Articles ➔
-                </span>
+              {/* 1. Utility Navigation Block */}
+              <div className="mb-6 flex flex-col gap-4">
+                {userRole === "admin" && (
+                  <div
+                    className="ml-3 flex items-center cursor-pointer group w-max mb-2"
+                    onClick={() => navigate("/publish")}
+                  >
+                    <span className="text-xs font-bold uppercase tracking-[0.15em] text-[#BD3900] group-hover:text-black transition-colors duration-300">
+                      + Create Article
+                    </span>
+                  </div>
+                )}
+
+                {/* Browse All Articles */}
+                <div
+                  className="flex items-center cursor-pointer group w-max"
+                  onClick={() => navigate("/allArticles")}
+                >
+                  <span className="text-xs font-bold uppercase tracking-[0.15em] text-gray-500 group-hover:text-[#BD3900] transition-colors duration-300">
+                    Read the Editorials ➔
+                  </span>
+                </div>
+
+                <div
+                  className="ml-4 flex items-center cursor-pointer group w-max"
+                  onClick={() => navigate("/archive")}
+                >
+                  <span className="text-xs font-bold uppercase tracking-[0.15em] text-gray-500 group-hover:text-[#BD3900] transition-colors duration-300">
+                    Visual Archive ➔
+                  </span>
+                </div>
+
+                {/* CONDITIONALLY RENDER AUTH LINKS */}
+                {isAuthenticated ? (
+                  // Show this if the user IS logged in
+                  <button
+                    className="ml-[3vw] text-left text-xs font-bold uppercase tracking-[0.15em] text-black hover:cursor-pointer hover:text-[#BD3900] transition-colors duration-300 w-max"
+                    onClick={handleLogout}
+                  >
+                    Log Out
+                  </button>
+                ) : (
+                  // Show this if the user IS NOT logged in
+                  <div className="ml-[0.5vw] flex items-center gap-2">
+                    <button
+                      className="text-xs font-bold uppercase tracking-[0.15em] text-black hover:text-[#BD3900] hover:cursor-pointer transition-colors duration-300"
+                      onClick={() => navigate("/login")}
+                    >
+                      Log In
+                    </button>
+                    <span className="text-gray-300 text-xs mx-1">/</span>
+                    <button
+                      className="text-xs font-bold uppercase tracking-[0.15em] text-black hover:text-[#BD3900] hover:cursor-pointer transition-colors duration-300"
+                      onClick={() => navigate("/register")}
+                    >
+                      Register
+                    </button>
+                  </div>
+                )}
               </div>
 
-              {/* 2. Divider Line and Copyright (BELOW the link) */}
+              {/* 2. Divider Line and Copyright */}
               <div className="mr-20 pb-8 border-t border-black/15 pt-8">
                 <p className="ml-[1vw] text-xs text-gray-400 font-bold uppercase tracking-wider whitespace-nowrap">
                   © 2026 Archive

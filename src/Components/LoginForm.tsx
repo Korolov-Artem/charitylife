@@ -1,154 +1,186 @@
-import React, {useEffect, useState} from "react";
-import {useLoginMutation} from "../services/authApi.ts";
-import {useNavigate} from "react-router-dom";
-import {setCredentials} from "../redux/authSlice.ts";
-import {useDispatch} from "react-redux";
-
+import React, { useState } from "react";
+import { useLoginMutation } from "../services/authApi.ts";
+import { useNavigate, Link } from "react-router-dom";
+import { setCredentials } from "../redux/authSlice.ts";
+import { useDispatch } from "react-redux";
+import { motion } from "framer-motion";
 
 const LoginForm = () => {
-    const [email, setEmail] = useState<string>("");
-    const [password, setPassword] = useState<string>("");
-    const [formError, setFormError] = useState<string | null>(null);
-    const [click, setClick] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
-    const [login, {isLoading}] = useLoginMutation()
-    const navigate = useNavigate()
-    const dispatch = useDispatch()
+  const [login, { isLoading }] = useLoginMutation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-    const handleBackClick = () => {
-        setClick(true)
-    }
-    useEffect(() => {
-        if (click) {
-            navigate("/")
-        }
-    }, [click, navigate]);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError(null);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setFormError(null);
-
-        if (!email || !password) {
-            setFormError("Please enter valid email and password");
-            return;
-        }
-
-        try {
-            const response = await login({email, password}).unwrap()
-
-            if (response.accessToken) {
-                localStorage.setItem("authToken", response.accessToken)
-                localStorage.setItem("userRole", response.role)
-
-                if (response.deviceId) {
-                    localStorage.setItem("deviceId", response.deviceId)
-                }
-                dispatch(setCredentials({
-                    accessToken: response.accessToken,
-                    deviceId: response.deviceId,
-                    role: response.role
-                }))
-            } else {
-                setFormError("Login successful, but no authToken received");
-            }
-            navigate("/");
-        } catch (error: any) {
-            console.log("Failed to login: ", error)
-            if (error.data && error.data.error) {
-                setFormError(error.data.error)
-            } else {
-                setFormError("An unexpected error occurred during login process, please try again later");
-            }
-        }
+    if (!email || !password) {
+      setFormError("Please enter a valid email and password.");
+      return;
     }
 
-    return (
-        <div
-            className="text-[#faeeee] bg-[#ECEBDF] z-10 fixed inset-0 flex items-center justify-center overflow-hidden">
+    try {
+      const response = await login({ email, password }).unwrap();
 
-            <div
-                className="text-black text-4xl flex -mt-[90vh] -ml-[30vw] font-light hover:text-[#BD3900] transition-all duration-300 cursor-pointer"
-                onClick={handleBackClick}
-            >
-                {"⇚ Назад"}
-            </div>
+      if (response.accessToken) {
+        localStorage.setItem("authToken", response.accessToken);
+        localStorage.setItem("userRole", response.role);
 
-            <div className="bg-[#BD3900] rounded-lg w-[30vw] h-[60vh] drop-shadow-2xl backdrop-blur-[] ml-[23vw]">
-                <h2 className="text-3xl mt-[5vh]">Welcome Back</h2>
-                <h3 className="text-xl text-[#EEC5C5] mt-[2vh]">Login with your account information</h3>
-                <form onSubmit={handleSubmit}>
-                    <div>
-                        <div className="font-[Cormorant_Garamond]">
-                            <label
-                                htmlFor="email"
-                                className="flex ml-[2.5vw] text-xl mt-[5vh]"
-                            >
-                                Email
-                            </label>
-                            <input
-                                type="email"
-                                id="email"
-                                value={email}
-                                placeholder="your@example.com"
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                                className="bg-[#ECEBDF] text-lg text-black pl-[1vw] border border-[#EEC5C5] rounded-sm mt-[1vh] w-[25vw] h-[4vh]"
-                            />
-                        </div>
-                        <div className="flex justify-between font-[Cormorant_Garamond]">
-                            <label
-                                htmlFor="password"
-                                className="flex ml-[2.5vw] text-xl mt-[2vh]"
-                            >
-                                Password
-                            </label>
-                            <a
-                                href="/register"
-                                className="text-lg !text-[#faeeee] mt-[2vh] mr-[2.5vw]"
-                            >Forgot your password?</a>
-                        </div>
-                        <div>
-                            <input
-                                type="password"
-                                id="password"
-                                value={password}
-                                placeholder="••••••••"
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                className="bg-[#ECEBDF] text-lg text-black pl-[1vw] border border-[#EEC5C5] rounded-sm mt-[1vh] w-[25vw] h-[4vh]"
-                            />
-                        </div>
-                        {formError && (
-                            <div className="mt-[2vh] underline">
-                                <span
-                                    className="text-xl font-[Cormorant_Garamond]"
-                                >{formError}</span>
-                            </div>
-                        )}
-                        <button
-                            onClick={handleSubmit}
-                            disabled={isLoading}
-                            className="w-[25vw] h-[5vh] !text-xl mt-[4vh] transition duration-200 hover:bg-[#ECEBDF] bg-black border-none hover:border-none"
-                        >
-                            {isLoading ? (
-                                ""
-                            ) : "Login"}
-                        </button>
-                        <div className="mt-[3vh]">
-                            <label className="text-xl !text-[#faeeee] font-[Cormorant_Garamond]">Don't have an account
-                                yet? </label>
-                            <a
-                                className="text-xl !text-[#faeeee] !underline"
-                                href="/register"
-                            >
-                                Sign Up!
-                            </a>
-                        </div>
-                    </div>
-                </form>
-            </div>
+        if (response.deviceId) {
+          localStorage.setItem("deviceId", response.deviceId);
+        }
+        dispatch(
+          setCredentials({
+            accessToken: response.accessToken,
+            deviceId: response.deviceId,
+            role: response.role,
+          }),
+        );
+
+        // Instantly send them to the homepage upon success
+        navigate("/");
+      } else {
+        setFormError(
+          "Login successful, but no authorization token was received.",
+        );
+      }
+    } catch (error: any) {
+      console.log("Failed to login: ", error);
+      if (error.data && error.data.error) {
+        setFormError(error.data.error);
+      } else {
+        setFormError("An unexpected error occurred. Please try again later.");
+      }
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#fafafa] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans selection:bg-black selection:text-white relative">
+      {/* --- BACK BUTTON --- */}
+      <button
+        className="absolute top-10 left-6 lg:left-10 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#BD3900] transition-colors duration-300"
+        onClick={() => navigate("/")}
+      >
+        ⇚ Back to Home
+      </button>
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
+        className="sm:mx-auto sm:w-full sm:max-w-md px-6 lg:px-0"
+      >
+        {/* --- HEADER --- */}
+        <div className="text-center mb-12">
+          <h2 className="mt-6 text-4xl lg:text-5xl font-serif text-black leading-tight tracking-tight">
+            Welcome Back
+          </h2>
+          <p className="mt-4 text-sm uppercase tracking-widest text-gray-500 font-bold">
+            Access your editorial account
+          </p>
         </div>
-    )
-}
 
-export default LoginForm
+        {/* --- FORM --- */}
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Email Input */}
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-2"
+            >
+              Email Address
+            </label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              placeholder="your@example.com"
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              // Minimalist styling: just a bottom border that turns red on focus
+              className="w-full appearance-none border-b border-black/20 bg-transparent px-0 py-3 text-lg text-black placeholder-gray-300 focus:border-[#BD3900] focus:outline-none focus:ring-0 transition-colors"
+            />
+          </div>
+
+          {/* Password Input */}
+          <div className="relative">
+            <div className="flex items-center justify-between mb-2">
+              <label
+                htmlFor="password"
+                className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400"
+              >
+                Password
+              </label>
+              <Link
+                to="/forgot-password"
+                className="text-[10px] font-bold uppercase tracking-widest text-gray-400 hover:text-[#BD3900] transition-colors"
+              >
+                Forgot?
+              </Link>
+            </div>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                value={password}
+                placeholder="••••••••"
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full appearance-none border-b border-black/20 bg-transparent px-0 py-3 text-lg text-black placeholder-gray-300 focus:border-[#BD3900] focus:outline-none focus:ring-0 transition-colors pr-16"
+              />
+              {/* Password Toggle Button */}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-0 top-1/2 -translate-y-1/2 text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-black transition-colors"
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
+          </div>
+
+          {/* Error Message */}
+          {formError && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="text-[#BD3900] text-sm font-serif italic text-center"
+            >
+              {formError}
+            </motion.div>
+          )}
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-black text-white py-4 mt-4 text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#BD3900] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? "Authenticating..." : "Log In"}
+          </button>
+        </form>
+
+        {/* --- FOOTER LINK --- */}
+        <div className="mt-10 text-center">
+          <p className="text-xs font-bold uppercase tracking-widest text-gray-400">
+            Don't have an account yet?{" "}
+            {/* Use React Router's Link instead of a standard <a> tag */}
+            <Link
+              to="/register"
+              className="text-black hover:text-[#BD3900] transition-colors ml-2 underline underline-offset-4 decoration-1"
+            >
+              Sign Up
+            </Link>
+          </p>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+export default LoginForm;

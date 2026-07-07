@@ -1,11 +1,12 @@
 import AddArticle from "./AddArticle.tsx";
 
 const PublishPage = () => {
-    return (
-        <div className="bg-[#ECEBDF] min-h-[100vh] w-[100vw] mt-[-47vh]">
-            <AddArticle/>
-        </div>
-    )
-}
+  return (
+    // Clean, responsive full-screen wrapper using our editorial background color
+    <div className="min-h-screen bg-[#fafafa] font-sans selection:bg-black selection:text-white pb-20">
+      <AddArticle />
+    </div>
+  );
+};
 
 export default PublishPage;
