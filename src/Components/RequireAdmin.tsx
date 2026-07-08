@@ -1,16 +1,14 @@
-import {useSelector} from "react-redux";
-import {selectCurrentRole} from "../redux/authSlice.ts";
-import {Navigate} from "react-router-dom";
-import PublishPage from "./PublishPage.tsx";
+import { useSelector } from "react-redux";
+import { Navigate, Outlet } from "react-router-dom";
 
 const RequireAdmin = () => {
-    const role = useSelector(selectCurrentRole)
+  const userRole = useSelector((state: any) => state.auth.role);
 
-    if (!role || role !== "admin") {
-        return <Navigate to="/" replace/>;
-    }
+  if (userRole !== "admin") {
+    return <Navigate to="/" replace />;
+  }
 
-    return <PublishPage/>
-}
+  return <Outlet />;
+};
 
-export default RequireAdmin
+export default RequireAdmin;

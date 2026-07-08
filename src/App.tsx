@@ -13,6 +13,7 @@ import MediaGallery from "./Components/MediaGallery.tsx";
 import Layout from "./Pages/Layout.tsx";
 import Preloader from "./Components/Preloader.tsx";
 import VisualIndex from "./Components/VisualIndex.tsx";
+import CreatePoll from "./Components/CreatePoll.tsx";
 
 function App() {
   const [isPreloading, setIsPreloading] = useState(true);
@@ -34,6 +35,7 @@ function App() {
 
               <Route element={<RequireAdmin />}>
                 <Route path="/publish" element={<PublishPage />} />
+                <Route path="/publish-poll" element={<CreatePoll />} />
               </Route>
 
               <Route path="/allArticles" element={<AllArticles />} />

@@ -1,9 +1,63 @@
 import "react-quill-new/dist/quill.snow.css";
-import ReactQuill from "react-quill-new";
+import ReactQuill, { Quill } from "react-quill-new";
 import { useMemo, useRef } from "react";
 import { useUploadImageMutation } from "../services/articlesApi.ts";
 
 const metaUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+
+const BlockEmbed = Quill.import("blots/block/embed") as any;
+
+// Custom HTML5 Video element handling
+class VideoBlot extends BlockEmbed {
+  static create(value: string) {
+    const node = super.create();
+    node.setAttribute("src", value);
+    node.setAttribute("controls", "true");
+    node.setAttribute("controlsList", "nodownload");
+    node.setAttribute("playsinline", "true");
+    node.style.width = "100%";
+    node.style.maxWidth = "700px";
+    node.style.margin = "1.5rem auto";
+    node.style.display = "block";
+    return node;
+  }
+  static value(node: HTMLElement) {
+    return node.getAttribute("src");
+  }
+}
+VideoBlot.blotName = "video";
+VideoBlot.tagName = "video"; // Transforms native Quill video into HTML5 <video>
+Quill.register(VideoBlot, true);
+
+// Custom HTML5 Audio element handling
+class AudioBlot extends BlockEmbed {
+  static create(value: string) {
+    const node = super.create();
+    node.setAttribute("src", value);
+    node.setAttribute("controls", "true");
+    node.style.width = "100%";
+    node.style.maxWidth = "500px";
+    node.style.margin = "1rem auto";
+    node.style.display = "block";
+    return node;
+  }
+  static value(node: HTMLElement) {
+    return node.getAttribute("src");
+  }
+}
+AudioBlot.blotName = "audio";
+AudioBlot.tagName = "audio"; // Registers brand new HTML5 <audio> tag
+Quill.register(AudioBlot, true);
+
+// Inject a premium SVG wave icon into the Quill toolbar for our custom audio button
+const icons = Quill.import("ui/icons") as any;
+icons["audio"] = `
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-top: 1px;">
+    <path d="M9 18V5l12-2v13"></path>
+    <circle cx="6" cy="18" r="3"></circle>
+    <circle cx="18" cy="16" r="3"></circle>
+  </svg>
+`;
 
 interface EditorProps {
   value: string;
@@ -12,12 +66,17 @@ interface EditorProps {
 
 export const Editor = ({ value, onChange }: EditorProps) => {
   const quillRef = useRef<ReactQuill>(null);
-  const [uploadImage] = useUploadImageMutation();
 
-  const imageHandler = () => {
+  const [uploadFile] = useUploadImageMutation();
+
+  // function that handles uploads for images, video, or audio
+  const mediaUploadHandler = (
+    acceptType: string,
+    embedType: "image" | "video" | "audio",
+  ) => {
     const input = document.createElement("input");
     input.setAttribute("type", "file");
-    input.setAttribute("accept", "image/*");
+    input.setAttribute("accept", acceptType);
     input.click();
 
     input.onchange = async () => {
@@ -25,17 +84,21 @@ export const Editor = ({ value, onChange }: EditorProps) => {
         const file = input.files[0];
 
         try {
-          const result = await uploadImage(file).unwrap();
+          // Send the binary file chunk straight through RTK Query upload endpoint
+          const result = await uploadFile(file).unwrap();
           const url = `${metaUrl}${result.url}`;
 
           const quill = quillRef.current?.getEditor();
           const range = quill?.getSelection();
 
           if (quill && range) {
-            quill.insertEmbed(range.index, "image", url);
+            // Inserts the correct HTML tag (img, video, or audio) with the source url
+            quill.insertEmbed(range.index, embedType, url);
+            // Move cursor past the newly injected media item
+            quill.setSelection(range.index + 1);
           }
         } catch (error) {
-          console.error("Upload failed", error);
+          console.error(`${embedType} upload failed`, error);
         }
       }
     };
@@ -45,19 +108,22 @@ export const Editor = ({ value, onChange }: EditorProps) => {
     () => ({
       toolbar: {
         container: [
-          // Enforcing the design system by removing custom fonts/sizes
-          [{ header: [2, 3, false] }], // H2, H3, Normal
-          ["bold", "italic", "underline"], // Emphasis
-          ["blockquote", "link", "image"], // Blocks and Media
-          [{ list: "ordered" }, { list: "bullet" }], // Lists
-          ["clean"], // Remove formatting
+          [{ header: [2, 3, false] }],
+          ["bold", "italic", "underline"],
+          // Added "video" and our custom "audio" token directly into the media toolbar block
+          ["blockquote", "link", "image", "video", "audio"],
+          [{ list: "ordered" }, { list: "bullet" }],
+          ["clean"],
         ],
         handlers: {
-          image: imageHandler,
+          // Intercept the toolbar clicks and map them to our custom file picker
+          image: () => mediaUploadHandler("image/*", "image"),
+          video: () => mediaUploadHandler("video/*", "video"),
+          audio: () => mediaUploadHandler("audio/*", "audio"),
         },
       },
     }),
-    [uploadImage],
+    [uploadFile],
   );
 
   return (
@@ -72,41 +138,37 @@ export const Editor = ({ value, onChange }: EditorProps) => {
         className="bg-white font-serif flex-1 flex flex-col"
       />
 
-      {/*
-              Custom CSS override to fix Quill's default height and borders.
-              This makes it look like a seamless, premium writing canvas.
-            */}
       <style>{`
-                .editorial-editor-wrapper .quill {
-                    display: flex;
-                    flex-direction: column;
-                    height: 100%;
-                }
-                .editorial-editor-wrapper .ql-container {
-                    min-height: 500px; /* Gives the author massive writing space */
-                    font-size: 1.125rem;
-                    font-family: inherit;
-                    border: none;
-                    border-top: 1px solid #e5e7eb;
-                    flex: 1;
-                }
-                .editorial-editor-wrapper .ql-toolbar {
-                    border: none;
-                    background-color: #f9fafb;
-                    padding: 1rem;
-                    border-top-left-radius: 0.375rem;
-                    border-top-right-radius: 0.375rem;
-                }
-                .editorial-editor-wrapper .ql-editor {
-                    min-height: 500px;
-                    padding: 2.5rem;
-                }
-                .editorial-editor-wrapper .ql-editor.ql-blank::before {
-                    left: 2.5rem;
-                    font-style: normal;
-                    color: #9ca3af;
-                }
-            `}</style>
+        .editorial-editor-wrapper .quill {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .editorial-editor-wrapper .ql-container {
+            min-height: 500px;
+            font-size: 1.125rem;
+            font-family: inherit;
+            border: none;
+            border-top: 1px solid #e5e7eb;
+            flex: 1;
+        }
+        .editorial-editor-wrapper .ql-toolbar {
+            border: none;
+            background-color: #f9fafb;
+            padding: 1rem;
+            border-top-left-radius: 0.375rem;
+            border-top-right-radius: 0.375rem;
+        }
+        .editorial-editor-wrapper .ql-editor {
+            min-height: 500px;
+            padding: 2.5rem;
+        }
+        .editorial-editor-wrapper .ql-editor.ql-blank::before {
+            left: 2.5rem;
+            font-style: normal;
+            color: #9ca3af;
+        }
+      `}</style>
     </div>
   );
 };

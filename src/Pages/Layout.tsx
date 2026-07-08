@@ -7,6 +7,7 @@ import { ArticleType } from "../types/ArticleType";
 import MediaCarousel from "../Components/MediaCarousel";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/authSlice";
+import ActivePoll from "../Components/ActivePoll";
 
 const themes = [
   { id: "design", label: "Дизайн", marginClass: "ml-0" },
@@ -269,13 +270,26 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               {/* 1. Utility Navigation Block */}
               <div className="mb-6 flex flex-col gap-4">
                 {userRole === "admin" && (
-                  <div
-                    className="ml-3 flex items-center cursor-pointer group w-max mb-2"
-                    onClick={() => navigate("/publish")}
-                  >
-                    <span className="text-xs font-bold uppercase tracking-[0.15em] text-[#BD3900] group-hover:text-black transition-colors duration-300">
-                      + Create Article
-                    </span>
+                  <div className="flex flex-col gap-3 mb-2">
+                    {/* Create Article Button */}
+                    <div
+                      className="ml-3 flex items-center cursor-pointer group w-max"
+                      onClick={() => navigate("/publish")}
+                    >
+                      <span className="text-xs font-bold uppercase tracking-[0.15em] text-[#BD3900] group-hover:text-black transition-colors duration-300">
+                        + Create Article
+                      </span>
+                    </div>
+
+                    {/* NEW: Create Poll Button */}
+                    <div
+                      className="ml-6 flex items-center cursor-pointer group w-max"
+                      onClick={() => navigate("/publish-poll")}
+                    >
+                      <span className="text-xs font-bold uppercase tracking-[0.15em] text-[#BD3900] group-hover:text-black transition-colors duration-300">
+                        + Create Poll
+                      </span>
+                    </div>
                   </div>
                 )}
 
@@ -360,6 +374,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 Editorial Highlights
               </h2>
               <MediaCarousel />
+
+              <div className="mt-20 px-6 lg:px-10">
+                <div className="max-w-3xl mx-auto">
+                  <ActivePoll />
+                </div>
+              </div>
             </div>
           )}
         </main>
