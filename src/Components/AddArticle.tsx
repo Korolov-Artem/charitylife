@@ -1,8 +1,7 @@
 import React, { ChangeEvent, FormEvent, useState } from "react";
-import {
-  useCreateArticleMutation,
-  useUploadImageMutation,
-} from "../services/articlesApi.ts";
+import { useCreateArticleMutation } from "../services/articlesApi.ts";
+// IMPORTANT: We use the media API here so it syncs with the drawer!
+import { useUploadMediaMutation } from "../services/mediaApi.ts";
 import { Editor } from "./Editor.tsx";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,19 +11,35 @@ const AddArticle = () => {
   const [synopsis, setSynopsis] = useState("");
   const [theme, setTheme] = useState("");
   const [content, setContent] = useState("");
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  // Replaced standard 'alert' with a state-driven error message for better UX
+  // We store the uploaded URL and the file name for the UI
+  const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
+  const [coverImageName, setCoverImageName] = useState<string | null>(null);
+
   const [formError, setFormError] = useState<string | null>(null);
 
-  const [uploadImage, { isLoading: isUploading }] = useUploadImageMutation();
+  const [uploadImage, { isLoading: isUploading }] = useUploadMediaMutation();
   const [createArticle, { isLoading: isCreating }] = useCreateArticleMutation();
   const navigate = useNavigate();
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  // Instant Cover Image Upload Logic
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setSelectedFile(e.target.files[0]);
-      setFormError(null); // Clear errors when they select a file
+      const file = e.target.files[0];
+      setFormError(null);
+      setCoverImageName(file.name); // Save name to show the user
+
+      try {
+        // Upload immediately to the server
+        const uploadResponse = await uploadImage(file).unwrap();
+
+        // Save the URL for when we finally submit the article
+        setCoverImageUrl(uploadResponse.url);
+      } catch (error) {
+        console.error("Cover image upload failed:", error);
+        setFormError("Failed to upload the cover image to the archive.");
+        setCoverImageName(null);
+      }
     }
   };
 
@@ -32,21 +47,19 @@ const AddArticle = () => {
     e.preventDefault();
     setFormError(null);
 
-    if (!selectedFile || !title || !content || !theme || !synopsis) {
-      setFormError("Please fill in all fields and select a cover image.");
+    // We check if the coverImageUrl is ready instead of the raw file
+    if (!coverImageUrl || !title || !content || !theme || !synopsis) {
+      setFormError("Please fill in all fields and wait for the cover image to finish uploading.");
       return;
     }
 
     try {
-      const uploadResponse = await uploadImage(selectedFile).unwrap();
-      const imageUrl = uploadResponse.url;
-
       const articleData = {
         title,
         content,
         synopsis,
         theme,
-        image: imageUrl,
+        image: coverImageUrl, // Use the already uploaded URL
       };
 
       await createArticle(articleData).unwrap();
@@ -61,8 +74,7 @@ const AddArticle = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-6 lg:px-0 pt-10">
-      {/* --- BACK BUTTON --- */}
-      {/* Direct navigation, no useEffect required! */}
+
       <button
         className="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#BD3900] transition-colors duration-300 mb-10"
         onClick={() => navigate("/")}
@@ -82,9 +94,7 @@ const AddArticle = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-10">
-          {/* --- METADATA GRID --- */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            {/* Title */}
             <div className="col-span-1 md:col-span-2">
               <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-2">
                 Article Title
@@ -94,11 +104,10 @@ const AddArticle = () => {
                 value={title}
                 placeholder="Enter a captivating title..."
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full appearance-none border-b border-black/20 bg-transparent px-0 py-3 text-2xl font-serif text-black placeholder-gray-300 focus:border-[#BD3900] focus:outline-none transition-colors"
+                className="w-full appearance-none border-b border-black/20 bg-transparent px-0 py-3 text-2xl font-serif text-[#111827] placeholder-gray-400 hover:border-black/40 focus:border-[#BD3900] focus:outline-none transition-colors duration-300"
               />
             </div>
 
-            {/* Theme */}
             <div>
               <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-2">
                 Theme / Category
@@ -108,11 +117,10 @@ const AddArticle = () => {
                 value={theme}
                 placeholder="e.g. Design, Health..."
                 onChange={(e) => setTheme(e.target.value)}
-                className="w-full appearance-none border-b border-black/20 bg-transparent px-0 py-3 text-lg text-black placeholder-gray-300 focus:border-[#BD3900] focus:outline-none transition-colors"
+                className="w-full appearance-none border-b border-black/20 bg-transparent px-0 py-3 text-lg text-[#111827] placeholder-gray-400 hover:border-black/40 focus:border-[#BD3900] focus:outline-none transition-colors duration-300"
               />
             </div>
 
-            {/* Synopsis */}
             <div>
               <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-2">
                 Short Synopsis
@@ -122,49 +130,50 @@ const AddArticle = () => {
                 value={synopsis}
                 placeholder="A brief summary for the feed..."
                 onChange={(e) => setSynopsis(e.target.value)}
-                className="w-full appearance-none border-b border-black/20 bg-transparent px-0 py-3 text-lg text-black placeholder-gray-300 focus:border-[#BD3900] focus:outline-none transition-colors"
+                className="w-full appearance-none border-b border-black/20 bg-transparent px-0 py-3 text-lg text-[#111827] placeholder-gray-400 hover:border-black/40 focus:border-[#BD3900] focus:outline-none transition-colors duration-300"
               />
             </div>
           </div>
 
-          {/* --- COVER IMAGE UPLOAD --- */}
+          {/* --- REFINED COVER IMAGE UPLOAD --- */}
           <div>
             <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-2">
               Cover Image
             </label>
-            <label className="flex flex-col items-center justify-center w-full h-32 px-4 transition bg-white border-2 border-gray-300 border-dashed rounded-md appearance-none cursor-pointer hover:border-[#BD3900] focus:outline-none">
-              <span className="flex items-center space-x-2">
-                <span className="font-medium text-gray-600">
-                  {selectedFile ? (
+            <label className="flex flex-col items-center justify-center w-full h-40 px-4 transition-all duration-300 bg-[#FAFAFA] border border-black/10 rounded-sm shadow-inner appearance-none cursor-pointer hover:bg-white hover:border-[#BD3900] hover:shadow-md focus:outline-none group">
+              <span className="flex flex-col items-center space-y-2">
+                <span className="font-serif text-sm text-gray-500 group-hover:text-[#BD3900] transition-colors">
+                  {isUploading ? (
+                    <span className="text-gray-400 animate-pulse">Archiving artwork...</span>
+                  ) : coverImageName ? (
                     <span className="text-[#BD3900] font-bold">
-                      {selectedFile.name}
+                      {coverImageName} (Ready)
                     </span>
                   ) : (
-                    "Click to browse for a high-res cover image"
+                    "Select a high-resolution cover image"
                   )}
                 </span>
+
               </span>
               <input
                 type="file"
                 onChange={handleFileChange}
                 className="hidden"
                 accept="image/*"
+                disabled={isUploading}
               />
             </label>
           </div>
 
-          {/* --- RICH TEXT EDITOR --- */}
           <div>
             <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-2">
               Article Body
             </label>
-            {/* Wrapped the editor in a clean white box to separate it from the #fafafa background */}
             <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden min-h-[400px]">
               <Editor value={content} onChange={setContent} />
             </div>
           </div>
 
-          {/* --- ERROR MESSAGE --- */}
           <AnimatePresence>
             {formError && (
               <motion.div
@@ -178,13 +187,12 @@ const AddArticle = () => {
             )}
           </AnimatePresence>
 
-          {/* --- SUBMIT BUTTON --- */}
           <button
             type="submit"
             disabled={isLoading}
             className="w-full bg-black text-white py-5 text-xs font-bold uppercase tracking-[0.2em] hover:cursor-pointer  hover:bg-[#BD3900] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? "Publishing to Archive..." : "Publish Article"}
+            {isCreating ? "Publishing Article..." : "Publish Article"}
           </button>
         </form>
       </motion.div>

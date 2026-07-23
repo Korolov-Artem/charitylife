@@ -81,9 +81,10 @@ const NewArticle = () => {
       {/* ---------------- LEFT SIDE: MAIN ARTICLE ---------------- */}
       <motion.div
         variants={itemVariants}
+        // h-full combined with flex-col ensures children distribute naturally from top to bottom
         className="xl:col-span-7 flex flex-col h-full"
       >
-        {/* Removed fixed height. The text naturally flows top-down. */}
+        {/* Removed min-height restriction so titles sit naturally at the absolute top */}
         <div className="mb-6 flex flex-col">
           <h2
             className="text-4xl lg:text-[4rem] font-serif font-normal text-black leading-[1.05] tracking-tight cursor-pointer hover:text-zinc-600 transition-colors duration-300 break-words line-clamp-3"
@@ -94,7 +95,7 @@ const NewArticle = () => {
         </div>
 
         <div
-          className="w-full aspect-[4/5] xl:aspect-auto xl:flex-1 relative group overflow-hidden cursor-pointer min-h-[300px]"
+          className="w-full aspect-[4/5] xl:aspect-[2/3] relative group overflow-hidden cursor-pointer"
           onClick={() => handleNavigate(mainArticle.id)}
         >
           <div className="absolute top-0 left-0 bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest z-10 border border-black/15">
@@ -125,15 +126,17 @@ const NewArticle = () => {
       </motion.div>
 
       {/* ---------------- RIGHT SIDE: SECONDARY ARTICLES ---------------- */}
-      <div className="xl:col-span-5 flex flex-col gap-8 xl:gap-12 h-full">
-        {secondaryArticles.map((article: ArticleType) => (
-          <motion.div
-            variants={itemVariants}
+      <motion.div
+        variants={itemVariants}
+        className="xl:col-span-5 flex flex-col justify-between h-full"
+      >
+        {secondaryArticles.map((article: ArticleType, index: number) => (
+          <div
             key={article.id}
-            className="flex flex-col h-full flex-1"
+            className="flex flex-col xl:contents"
           >
-            {/* Removed fixed height here as well */}
-            <div className="mb-6 flex flex-col">
+            {/* Removed forced spacing; top-right article hugs the top edge just like the left side */}
+            <div className={`mb-6 flex flex-col ${index > 0 ? "xl:mt-12" : ""}`}>
               <h3
                 className="text-2xl lg:text-3xl font-serif font-normal text-black leading-[1.1] cursor-pointer hover:text-zinc-600 transition-colors break-words line-clamp-3"
                 onClick={() => handleNavigate(article.id)}
@@ -143,7 +146,7 @@ const NewArticle = () => {
             </div>
 
             <div
-              className="w-full aspect-[4/3] relative group overflow-hidden cursor-pointer"
+              className="w-full aspect-[4/3] xl:aspect-auto xl:flex-1 relative group overflow-hidden cursor-pointer"
               onClick={() => handleNavigate(article.id)}
             >
               <div className="absolute top-0 left-0 bg-white px-2 py-1 text-[8px] font-bold uppercase tracking-widest z-10 border border-black/15">
@@ -161,15 +164,15 @@ const NewArticle = () => {
               )}
             </div>
 
-            <div className="flex-none h-[60px] mt-auto flex flex-col justify-end">
-              <hr className="border-t border-black/20 mt-6 mb-3" />
+            <div className="flex-none h-[60px] mt-6 flex flex-col justify-end">
+              <hr className="border-t border-black/20 mb-3" />
               <div className="text-[10px] uppercase tracking-[0.2em] font-bold font-sans text-black">
                 {formatDate(article.dataPublished)}
               </div>
             </div>
-          </motion.div>
+          </div>
         ))}
-      </div>
+      </motion.div>
     </motion.div>
   );
 };

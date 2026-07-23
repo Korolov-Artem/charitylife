@@ -51,17 +51,6 @@ const RegisterForm = () => {
 
   return (
     <div className="min-h-screen bg-[#fafafa] flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans selection:bg-black selection:text-white relative">
-      {/* --- BACK BUTTON --- */}
-      {/* Ховаємо кнопку "Назад", якщо реєстрація успішна, щоб користувач не перервав процес */}
-      {!isSuccess && (
-        <button
-          className="absolute top-10 left-6 lg:left-10 text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#BD3900] transition-colors duration-300"
-          onClick={() => navigate("/")}
-        >
-          ⇚ Back to Home
-        </button>
-      )}
-
       <div className="sm:mx-auto sm:w-full sm:max-w-md px-6 lg:px-0">
         <AnimatePresence mode="wait">
           {/* 3. ДОДАНО: Умовний рендеринг. Якщо успіх - показуємо повідомлення, якщо ні - форму */}

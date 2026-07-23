@@ -1,7 +1,8 @@
 import "react-quill-new/dist/quill.snow.css";
 import ReactQuill, { Quill } from "react-quill-new";
-import { useMemo, useRef } from "react";
-import { useUploadImageMutation } from "../services/articlesApi.ts";
+import React, { useMemo, useRef, useState } from "react";
+import { useUploadMediaMutation } from "../services/mediaApi.ts";
+import MediaDrawer from "./MediaDrawer.tsx";
 
 const metaUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -26,7 +27,7 @@ class VideoBlot extends BlockEmbed {
   }
 }
 VideoBlot.blotName = "video";
-VideoBlot.tagName = "video"; // Transforms native Quill video into HTML5 <video>
+VideoBlot.tagName = "video";
 Quill.register(VideoBlot, true);
 
 // Custom HTML5 Audio element handling
@@ -46,16 +47,23 @@ class AudioBlot extends BlockEmbed {
   }
 }
 AudioBlot.blotName = "audio";
-AudioBlot.tagName = "audio"; // Registers brand new HTML5 <audio> tag
+AudioBlot.tagName = "audio";
 Quill.register(AudioBlot, true);
 
-// Inject a premium SVG wave icon into the Quill toolbar for our custom audio button
+// Custom toolbar icons
 const icons = Quill.import("ui/icons") as any;
 icons["audio"] = `
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-top: 1px;">
     <path d="M9 18V5l12-2v13"></path>
     <circle cx="6" cy="18" r="3"></circle>
     <circle cx="18" cy="16" r="3"></circle>
+  </svg>
+`;
+icons["archive"] = `
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+    <circle cx="8.5" cy="8.5" r="1.5"></circle>
+    <polyline points="21 15 16 10 5 21"></polyline>
   </svg>
 `;
 
@@ -66,10 +74,34 @@ interface EditorProps {
 
 export const Editor = ({ value, onChange }: EditorProps) => {
   const quillRef = useRef<ReactQuill>(null);
+  const [isMediaDrawerOpen, setIsMediaDrawerOpen] = useState(false);
+  const [uploadFile] = useUploadMediaMutation();
 
-  const [uploadFile] = useUploadImageMutation();
+  const handlePasteCapture = async (e: React.ClipboardEvent<HTMLDivElement>) => {
+    if (e.clipboardData && e.clipboardData.files && e.clipboardData.files.length > 0) {
+      const file = e.clipboardData.files[0];
 
-  // function that handles uploads for images, video, or audio
+      if (file.type.startsWith("image/")) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        try {
+          const result = await uploadFile(file).unwrap();
+          const url = `${metaUrl}${result.url}`;
+
+          const quill = quillRef.current?.getEditor();
+          if (quill) {
+            const range = quill.getSelection() || { index: quill.getLength(), length: 0 };
+            quill.insertEmbed(range.index, "image", url);
+            quill.setSelection(range.index + 1);
+          }
+        } catch (error) {
+          console.error("Paste upload failed", error);
+        }
+      }
+    }
+  };
+
   const mediaUploadHandler = (
     acceptType: string,
     embedType: "image" | "video" | "audio",
@@ -84,17 +116,13 @@ export const Editor = ({ value, onChange }: EditorProps) => {
         const file = input.files[0];
 
         try {
-          // Send the binary file chunk straight through RTK Query upload endpoint
           const result = await uploadFile(file).unwrap();
           const url = `${metaUrl}${result.url}`;
 
           const quill = quillRef.current?.getEditor();
-          const range = quill?.getSelection();
-
-          if (quill && range) {
-            // Inserts the correct HTML tag (img, video, or audio) with the source url
+          if (quill) {
+            const range = quill.getSelection() || { index: quill.getLength(), length: 0 };
             quill.insertEmbed(range.index, embedType, url);
-            // Move cursor past the newly injected media item
             quill.setSelection(range.index + 1);
           }
         } catch (error) {
@@ -104,22 +132,31 @@ export const Editor = ({ value, onChange }: EditorProps) => {
     };
   };
 
+  const handleInsertFromArchive = (imageUrl: string) => {
+    const quill = quillRef.current?.getEditor();
+    if (quill) {
+      const range = quill.getSelection() || { index: quill.getLength(), length: 0 };
+      quill.insertEmbed(range.index, "image", imageUrl);
+      quill.setSelection(range.index + 1);
+    }
+  };
+
   const modules = useMemo(
     () => ({
       toolbar: {
         container: [
           [{ header: [2, 3, false] }],
           ["bold", "italic", "underline"],
-          // Added "video" and our custom "audio" token directly into the media toolbar block
-          ["blockquote", "link", "image", "video", "audio"],
           [{ list: "ordered" }, { list: "bullet" }],
+          ["blockquote", "link"],
+          // REMOVED: "image" has been removed to prevent redundancy
+          ["video", "audio", "archive"],
           ["clean"],
         ],
         handlers: {
-          // Intercept the toolbar clicks and map them to our custom file picker
-          image: () => mediaUploadHandler("image/*", "image"),
           video: () => mediaUploadHandler("video/*", "video"),
           audio: () => mediaUploadHandler("audio/*", "audio"),
+          archive: () => setIsMediaDrawerOpen(true),
         },
       },
     }),
@@ -127,7 +164,10 @@ export const Editor = ({ value, onChange }: EditorProps) => {
   );
 
   return (
-    <div className="editorial-editor-wrapper w-full h-full flex flex-col">
+    <div
+      className="editorial-editor-wrapper w-full h-full flex flex-col relative"
+      onPasteCapture={handlePasteCapture}
+    >
       <ReactQuill
         ref={quillRef}
         theme="snow"
@@ -135,7 +175,13 @@ export const Editor = ({ value, onChange }: EditorProps) => {
         onChange={onChange}
         modules={modules}
         placeholder="Write your editorial piece here..."
-        className="bg-white font-serif flex-1 flex flex-col"
+        className="bg-[#FAFAFA] font-serif flex-1 flex flex-col"
+      />
+
+      <MediaDrawer
+        isOpen={isMediaDrawerOpen}
+        onClose={() => setIsMediaDrawerOpen(false)}
+        onSelectImage={handleInsertFromArchive}
       />
 
       <style>{`
@@ -152,21 +198,117 @@ export const Editor = ({ value, onChange }: EditorProps) => {
             border-top: 1px solid #e5e7eb;
             flex: 1;
         }
+
+        /* The Toolbar Background and Structure */
         .editorial-editor-wrapper .ql-toolbar {
             border: none;
-            background-color: #f9fafb;
-            padding: 1rem;
-            border-top-left-radius: 0.375rem;
-            border-top-right-radius: 0.375rem;
+            background-color: #FFFFFF;
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
+
+        /* Group Dividers */
+        .editorial-editor-wrapper .ql-toolbar .ql-formats {
+            display: flex;
+            align-items: center;
+            margin-right: 1.5rem;
+            position: relative;
+        }
+        .editorial-editor-wrapper .ql-toolbar .ql-formats:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: -0.75rem;
+            top: 15%;
+            height: 70%;
+            width: 1px;
+            background-color: #E5E7EB;
+        }
+
+        /* Base Icon Styles */
+        .editorial-editor-wrapper .ql-toolbar button {
+            width: 36px;
+            height: 36px;
+            padding: 6px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .editorial-editor-wrapper .ql-toolbar button:hover {
+            background-color: #F3F4F6;
+        }
+        .editorial-editor-wrapper .ql-toolbar button svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* -----------------------------------------------------------------
+           NEW: OVERRIDING QUILL'S DEFAULT BLUE (#06c) TO YOUR RED (#BD3900)
+           ----------------------------------------------------------------- */
+
+        /* 1. Target standard text elements (dropdowns, labels, etc.) */
+        .editorial-editor-wrapper .ql-snow.ql-toolbar button:hover,
+        .editorial-editor-wrapper .ql-snow .ql-toolbar button:hover,
+        .editorial-editor-wrapper .ql-snow.ql-toolbar button.ql-active,
+        .editorial-editor-wrapper .ql-snow .ql-toolbar button.ql-active,
+        .editorial-editor-wrapper .ql-snow.ql-toolbar .ql-picker-label:hover,
+        .editorial-editor-wrapper .ql-snow.ql-toolbar .ql-picker-label.ql-active,
+        .editorial-editor-wrapper .ql-snow.ql-toolbar .ql-picker-item:hover,
+        .editorial-editor-wrapper .ql-snow.ql-toolbar .ql-picker-item.ql-selected {
+            color: #BD3900 !important;
+        }
+
+        /* 2. Target SVG fills (like the bold icon) */
+        .editorial-editor-wrapper .ql-snow.ql-toolbar button:hover .ql-fill,
+        .editorial-editor-wrapper .ql-snow .ql-toolbar button:hover .ql-fill,
+        .editorial-editor-wrapper .ql-snow.ql-toolbar button.ql-active .ql-fill,
+        .editorial-editor-wrapper .ql-snow .ql-toolbar button.ql-active .ql-fill,
+        .editorial-editor-wrapper .ql-snow.ql-toolbar .ql-picker-label:hover .ql-fill,
+        .editorial-editor-wrapper .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-fill,
+        .editorial-editor-wrapper .ql-snow.ql-toolbar .ql-picker-item:hover .ql-fill,
+        .editorial-editor-wrapper .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-fill,
+        .editorial-editor-wrapper .ql-snow.ql-toolbar .ql-picker-item:hover .ql-stroke.ql-fill,
+        .editorial-editor-wrapper .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke.ql-fill {
+            fill: #BD3900 !important;
+        }
+
+        /* 3. Target SVG strokes (like the underline or custom icons) */
+        .editorial-editor-wrapper .ql-snow.ql-toolbar button:hover .ql-stroke,
+        .editorial-editor-wrapper .ql-snow .ql-toolbar button:hover .ql-stroke,
+        .editorial-editor-wrapper .ql-snow.ql-toolbar button.ql-active .ql-stroke,
+        .editorial-editor-wrapper .ql-snow .ql-toolbar button.ql-active .ql-stroke,
+        .editorial-editor-wrapper .ql-snow.ql-toolbar .ql-picker-label:hover .ql-stroke,
+        .editorial-editor-wrapper .ql-snow.ql-toolbar .ql-picker-label.ql-active .ql-stroke,
+        .editorial-editor-wrapper .ql-snow.ql-toolbar .ql-picker-item:hover .ql-stroke,
+        .editorial-editor-wrapper .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke,
+        .editorial-editor-wrapper .ql-snow.ql-toolbar .ql-picker-item:hover .ql-stroke-miter,
+        .editorial-editor-wrapper .ql-snow.ql-toolbar .ql-picker-item.ql-selected .ql-stroke-miter {
+            stroke: #BD3900 !important;
+        }
+
+        /* Dropdown styling (Headers) */
+        .editorial-editor-wrapper .ql-picker {
+            font-family: sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
         .editorial-editor-wrapper .ql-editor {
             min-height: 500px;
-            padding: 2.5rem;
+            padding: 3rem;
+            color: #111827;
+            line-height: 1.8;
         }
         .editorial-editor-wrapper .ql-editor.ql-blank::before {
-            left: 2.5rem;
-            font-style: normal;
-            color: #9ca3af;
+            left: 3rem;
+            font-style: italic;
+            color: #9CA3AF;
         }
       `}</style>
     </div>

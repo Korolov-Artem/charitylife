@@ -41,7 +41,7 @@ const FeaturedItem = ({
   article: ArticleType;
   handleNavigate: (id: string) => void;
 }) => {
-  const [isHovered, setIsHovered] = React.useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <motion.div
@@ -55,8 +55,8 @@ const FeaturedItem = ({
         layout
         initial={false}
         animate={{
-          width: isHovered ? "100%" : "5rem",
-          height: isHovered ? "180px" : "5rem",
+          width: isHovered ? "100%" : "8.5rem",
+          height: isHovered ? "336px" : "8.5rem",
         }}
         transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] }}
         className="shrink-0 overflow-hidden bg-zinc-200"
@@ -106,15 +106,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   const isHomePage = location.pathname === "/";
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true);
-
-  // 1. ADDED: State to track if the right sidebar is currently being scrolled
   const [isSidebarScrolling, setIsSidebarScrolling] = useState(false);
   const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const isAuthenticated = useSelector(
-    (state: any) => state.auth.isAuthenticated,
+    (state: any) => state.auth.isAuthenticated
   );
-  const userRole = useSelector((state: any) => state.auth.role); // <-- ADD THIS LINE
+  const userRole = useSelector((state: any) => state.auth.role);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -136,15 +134,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     navigate(`/theme/${themeId}`);
   };
 
-  // 2. ADDED: The scroll handler that temporarily locks pointer events
   const handleRightSidebarScroll = () => {
     setIsSidebarScrolling(true);
-
-    if (scrollTimeout.current) {
-      clearTimeout(scrollTimeout.current);
-    }
-
-    // Unlock pointer events 150ms after the user completely stops scrolling
+    if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
     scrollTimeout.current = setTimeout(() => {
       setIsSidebarScrolling(false);
     }, 150);
@@ -152,13 +144,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="min-h-screen bg-[#fafafa] text-black font-sans selection:bg-black selection:text-white">
-      <div className="max-w-[1600px] mx-auto flex h-screen overflow-hidden">
+      <div className="w-full max-w-[1920px] mx-auto flex h-screen overflow-hidden">
         {/* ── LEFT SIDEBAR ── */}
         <motion.aside
           initial={false}
           animate={{ width: isLeftSidebarOpen ? 300 : 80 }}
           transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] }}
-          className="relative hidden lg:flex flex-col shrink-0 border-r border-black/105 h-full overflow-hidden bg-[#fafafa] z-30"
+          className="relative hidden lg:flex flex-col shrink-0 border-r border-black/10 h-full overflow-hidden bg-[#fafafa] z-30"
         >
           <motion.div
             animate={{
@@ -176,7 +168,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
           <div className="w-[300px] pt-8 pl-8 pr-4 h-full flex flex-col justify-between">
             <div>
-              <div className="relative h-10 mb-16 flex items-center">
+              <div className="relative h-10 mb-10 flex items-center">
                 <motion.div
                   animate={{
                     opacity: isLeftSidebarOpen ? 1 : 0,
@@ -187,11 +179,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   className="absolute inset-0 z-10 flex items-center justify-between pr-4 w-[260px]"
                 >
                   <h1
-                    className="group text-3xl text-gray-900 font-medium tracking-wider cursor-pointer whitespace-nowrap transition-colors duration-300 hover:text-red-900"
+                    className="group text-3xl text-gray-900 font-medium tracking-wider cursor-pointer whitespace-nowrap transition-colors duration-300 hover:text-[#BD3900]"
                     onClick={() => navigate("/")}
                   >
                     Charity
-                    {/* Fixed a small Tailwind typo here: text-red-[#BD3900] to text-[#BD3900] */}
                     <span className="font-serif italic text-gray-400 transition-colors duration-300 group-hover:text-[#BD3900] mx-2">
                       |
                     </span>
@@ -209,6 +200,28 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 </motion.div>
               </div>
 
+              {/* Explicit Editorial Return Button */}
+              <div className="h-10 mb-6">
+                <motion.div
+                  initial={false}
+                  animate={{
+                    opacity: isLeftSidebarOpen && !isHomePage ? 1 : 0,
+                    y: isLeftSidebarOpen && !isHomePage ? 0 : -10,
+                    pointerEvents: isLeftSidebarOpen && !isHomePage ? "auto" : "none",
+                  }}
+                  transition={{ duration: 0.3 }}
+                  className="flex items-center cursor-pointer group w-max"
+                  onClick={() => navigate("/")}
+                >
+                  <span className="text-[#BD3900] text-sm mr-2 transform group-hover:-translate-x-1 transition-transform duration-300">
+                    ←
+                  </span>
+                  <span className="text-xs font-bold uppercase tracking-[0.15em] text-gray-400 group-hover:text-black transition-colors duration-300">
+                    Front Page
+                  </span>
+                </motion.div>
+              </div>
+
               <motion.div
                 animate={{
                   opacity: isLeftSidebarOpen ? 1 : 0,
@@ -218,7 +231,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 transition={{ duration: 0.15, ease: "easeOut" }}
               >
                 <motion.nav
-                  className="flex flex-col gap-8 mt-[15vh]"
+                  className="flex flex-col gap-8 mt-10"
                   variants={navContainerVariants}
                   initial="hidden"
                   animate="visible"
@@ -261,19 +274,16 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               </motion.div>
             </div>
 
-            {/* Wrapper for utility links and copyright */}
             <motion.div
               animate={{ opacity: isLeftSidebarOpen ? 1 : 0 }}
               transition={{ duration: 0.15 }}
               className="flex flex-col"
             >
-              {/* 1. Utility Navigation Block */}
               <div className="mb-6 flex flex-col gap-4">
                 {userRole === "admin" && (
                   <div className="flex flex-col gap-3 mb-2">
-                    {/* Create Article Button */}
                     <div
-                      className="ml-3 flex items-center cursor-pointer group w-max"
+                      className="flex items-center cursor-pointer group w-max"
                       onClick={() => navigate("/publish")}
                     >
                       <span className="text-xs font-bold uppercase tracking-[0.15em] text-[#BD3900] group-hover:text-black transition-colors duration-300">
@@ -281,9 +291,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                       </span>
                     </div>
 
-                    {/* NEW: Create Poll Button */}
                     <div
-                      className="ml-6 flex items-center cursor-pointer group w-max"
+                      className="flex items-center cursor-pointer group w-max"
                       onClick={() => navigate("/publish-poll")}
                     >
                       <span className="text-xs font-bold uppercase tracking-[0.15em] text-[#BD3900] group-hover:text-black transition-colors duration-300">
@@ -293,7 +302,6 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   </div>
                 )}
 
-                {/* Browse All Articles */}
                 <div
                   className="flex items-center cursor-pointer group w-max"
                   onClick={() => navigate("/allArticles")}
@@ -304,7 +312,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 </div>
 
                 <div
-                  className="ml-4 flex items-center cursor-pointer group w-max"
+                  className="flex items-center cursor-pointer group w-max"
                   onClick={() => navigate("/archive")}
                 >
                   <span className="text-xs font-bold uppercase tracking-[0.15em] text-gray-500 group-hover:text-[#BD3900] transition-colors duration-300">
@@ -312,18 +320,15 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   </span>
                 </div>
 
-                {/* CONDITIONALLY RENDER AUTH LINKS */}
                 {isAuthenticated ? (
-                  // Show this if the user IS logged in
                   <button
-                    className="ml-[3vw] text-left text-xs font-bold uppercase tracking-[0.15em] text-black hover:cursor-pointer hover:text-[#BD3900] transition-colors duration-300 w-max"
+                    className="text-left text-xs font-bold uppercase tracking-[0.15em] text-black hover:cursor-pointer hover:text-[#BD3900] transition-colors duration-300 w-max"
                     onClick={handleLogout}
                   >
                     Log Out
                   </button>
                 ) : (
-                  // Show this if the user IS NOT logged in
-                  <div className="ml-[0.5vw] flex items-center gap-2">
+                  <div className="flex items-center gap-2">
                     <button
                       className="text-xs font-bold uppercase tracking-[0.15em] text-black hover:text-[#BD3900] hover:cursor-pointer transition-colors duration-300"
                       onClick={() => navigate("/login")}
@@ -341,9 +346,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 )}
               </div>
 
-              {/* 2. Divider Line and Copyright */}
-              <div className="mr-20 pb-8 border-t border-black/15 pt-8">
-                <p className="ml-[1vw] text-xs text-gray-400 font-bold uppercase tracking-wider whitespace-nowrap">
+              <div className="mr-20 pb-8 border-t border-black/10 pt-8">
+                <p className="text-xs text-gray-400 font-bold uppercase tracking-wider whitespace-nowrap">
                   © 2026 Archive
                 </p>
               </div>
@@ -359,17 +363,19 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               opacity: isHomePage ? 1 : 0,
               height: isHomePage ? "3.5rem" : "0rem",
             }}
-            className="border-b-3 border-black/105 flex items-center justify-center bg-[#fafafa] sticky top-0 z-20 overflow-hidden"
+            className="border-b-[3px] border-black/10 flex items-center justify-center bg-[#fafafa] sticky top-0 z-20 overflow-hidden"
           >
             <span className="text-md font-bold uppercase tracking-[0.2em] text-black">
               All Topics
             </span>
           </motion.header>
 
-          <div className="px-6 py-10 lg:px-10">{children}</div>
+          <div className="px-6 py-10 lg:px-10 max-w-6xl mx-auto">
+            {children}
+          </div>
 
           {isHomePage && (
-            <div className="w-full mt-10 mb-20">
+            <div className="w-full mt-10 mb-20 max-w-6xl mx-auto">
               <h2 className="text-center text-xs font-bold uppercase tracking-[0.3em] text-gray-400 mb-8">
                 Editorial Highlights
               </h2>
@@ -388,28 +394,28 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <motion.aside
           initial={false}
           animate={{
-            width: isHomePage ? 320 : 0,
+            width: isHomePage ? 400 : 0,
             opacity: isHomePage ? 1 : 0,
             borderLeftWidth: isHomePage ? 1 : 0,
           }}
           transition={{ duration: 0.5, ease: [0.76, 0, 0.24, 1] }}
-          className="hidden xl:flex flex-col shrink-0 border-black/105 h-full overflow-hidden bg-[#fafafa]"
+          className="hidden xl:flex flex-col shrink-0 border-black/10 h-full overflow-hidden bg-[#fafafa]"
         >
-          {/* 3. ADDED: Changed from standard div to motion.div, added layoutScroll, and onScroll handler */}
           <motion.div
             layoutScroll
             onScroll={handleRightSidebarScroll}
-            className="w-[320px] h-full overflow-y-auto no-scrollbar"
+            className="w-[400px] h-full overflow-y-auto no-scrollbar"
           >
-            <div className="h-14 sticky top-0 bg-[#fafafa] flex items-center border-b-3 border-black/105 z-10 px-8 mb-6">
-              <h3 className="text-md mt-[3vh] pb-[3vh] ml-[5vw] font-bold uppercase tracking-[0.2em] text-black">
+            <div className="h-14 sticky top-0 bg-[#fafafa] flex items-center border-b-[3px] border-black/10 z-10 px-8 mb-6">
+              <h3 className="text-md mt-2 font-bold uppercase tracking-[0.2em] text-black">
                 Featured
               </h3>
             </div>
 
-            {/* 4. ADDED: The dynamic pointer-events class based on the scrolling state */}
             <div
-              className={`flex flex-col gap-8 px-8 pb-8 transition-all duration-150 ${isSidebarScrolling ? "pointer-events-none" : "pointer-events-auto"}`}
+              className={`flex flex-col gap-8 px-8 pb-8 transition-all duration-150 ${
+                isSidebarScrolling ? "pointer-events-none" : "pointer-events-auto"
+              }`}
             >
               {isLoading ? (
                 <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">

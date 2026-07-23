@@ -145,16 +145,19 @@ const Article = () => {
       {/* --- BODY CONTENT: Quill Ready --- */}
       <motion.div
         variants={textFadeUp}
-        // ADDED 'w-full' to enforce the container limits.
-        // ADDED 'break-words' to safely break stubborn Wikipedia text without chopping normal words.
         className="w-full max-w-3xl mx-auto px-6 text-lg lg:text-xl leading-[1.8] font-light text-zinc-800 break-words
                 [&>p]:mb-8
 
-                /* Link styling: Safe hover state so only the hovered link turns black */
+                /* Link styling */
                 [&_a]:text-[#BD3900] [&_a]:underline [&_a]:underline-offset-4 [&_a]:decoration-1 [&_a:hover]:text-black [&_a]:transition-colors
 
+                /* Dropcap */
                 [&>p:first-of-type]:first-letter:text-7xl [&>p:first-of-type]:first-letter:font-serif [&>p:first-of-type]:first-letter:mr-3 [&>p:first-of-type]:first-letter:float-left [&>p:first-of-type]:first-letter:text-[#BD3900]
-                [&>img]:w-full [&>img]:my-16 [&>img]:object-cover [&>img]:bg-zinc-100
+
+                /* FIXED IMAGE STYLING */
+                [&_img]:block [&_img]:mx-auto [&_img]:max-w-full [&_img]:h-auto [&_img]:my-16 [&_img]:bg-zinc-100
+
+                /* Typography elements */
                 [&>blockquote]:border-l-4 [&>blockquote]:border-[#BD3900] [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:my-12 [&>blockquote]:text-2xl [&>blockquote]:text-black
                 [&>h2]:text-3xl [&>h2]:font-serif [&>h2]:mt-16 [&>h2]:mb-6
                 [&>h3]:text-2xl [&>h3]:font-serif [&>h3]:mt-12 [&>h3]:mb-4"

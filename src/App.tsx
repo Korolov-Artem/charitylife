@@ -14,6 +14,8 @@ import Layout from "./Pages/Layout.tsx";
 import Preloader from "./Components/Preloader.tsx";
 import VisualIndex from "./Components/VisualIndex.tsx";
 import CreatePoll from "./Components/CreatePoll.tsx";
+import ForgotPassword from "./Components/ForgotPassword.tsx";
+import ResetPassword from "./Components/ResetPassword.tsx";
 
 function App() {
   const [isPreloading, setIsPreloading] = useState(true);
@@ -41,6 +43,9 @@ function App() {
               <Route path="/allArticles" element={<AllArticles />} />
               <Route path="/gallery" element={<MediaGallery />} />
               <Route path="/archive" element={<VisualIndex />} />
+
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
             </Routes>
           </Layout>
         </BrowserRouter>
