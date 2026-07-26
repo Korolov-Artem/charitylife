@@ -29,8 +29,8 @@ const ActivePoll = () => {
 
   if (isLoading) {
     return (
-      <div className="w-full py-16 flex items-center justify-center text-[10px] font-bold uppercase tracking-widest text-gray-400 animate-pulse">
-        Loading Community Poll...
+      <div className="w-full py-16 font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink-soft animate-pulse">
+        Loading Community Poll
       </div>
     );
   }
@@ -39,6 +39,11 @@ const ActivePoll = () => {
 
   const totalVotes = poll.options.reduce(
     (sum: number, opt: any) => sum + opt.votes,
+    0,
+  );
+
+  const leadingVotes = poll.options.reduce(
+    (max: number, opt: any) => Math.max(max, opt.votes),
     0,
   );
 
@@ -57,111 +62,134 @@ const ActivePoll = () => {
   };
 
   return (
-    <motion.div
+    // A ballot set on the page, not a card floating above it: hairline rules and
+    // paper, no shadow, no white panel.
+    <motion.section
       initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }}
-      // Replaced the harsh border with a soft, expansive shadow and pure white background
-      className="w-full bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 lg:p-14 my-16"
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      className="w-full my-16 border-t border-rule pt-10"
     >
-      {/* THE HEADER - Centered for better typographic presence */}
-      <div className="mb-12 text-center flex flex-col items-center">
-        <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#BD3900] mb-4 block">
+      <header className="mb-10">
+        <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-accent">
           Community Poll
         </span>
-        <h3 className="text-3xl lg:text-4xl font-serif text-black leading-tight max-w-2xl">
+        <h3 className="mt-4 font-display text-[1.75rem] lg:text-[2.25rem] font-normal text-ink leading-[1.1] tracking-[-0.015em] text-balance max-w-[26ch]">
           {poll.question}
         </h3>
-      </div>
+      </header>
 
-      {/* THE OPTIONS / RESULTS */}
-      <div className="flex flex-col gap-4 max-w-2xl mx-auto">
+      <ol>
         {poll.options.map((opt: any, index: number) => {
-          const rawPercentage =
-            totalVotes > 0 ? (opt.votes / totalVotes) * 100 : 0;
-          const percentage = Math.round(rawPercentage);
+          const percentage =
+            totalVotes > 0 ? Math.round((opt.votes / totalVotes) * 100) : 0;
           const isSelected = userChoice === opt.id;
+          const isLeading = opt.votes === leadingVotes && totalVotes > 0;
+
+          // Bars are scaled against the leading option, not the total: with four
+          // options a 30% winner is a stub against the full width, and the shape
+          // of the result stops being readable.
+          const barWidth =
+            leadingVotes > 0 ? (opt.votes / leadingVotes) * 100 : 0;
 
           if (hasVoted) {
-            // --- STATE 2: THE REVEAL (Results) ---
             return (
-              <motion.div
+              <motion.li
                 key={opt.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.1, duration: 0.4 }}
-                className={`relative overflow-hidden border p-6 flex flex-col justify-center transition-colors duration-500 ${
-                  isSelected
-                    ? "border-[#BD3900]/30 bg-[#BD3900]/[0.02]"
-                    : "border-zinc-100 bg-white"
-                }`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: index * 0.08, duration: 0.5 }}
+                className="border-b border-rule py-5"
               >
-                {/* Text and Percentage Container */}
-                <div className="flex justify-between items-center mb-4 relative z-10">
+                <div className="flex items-baseline gap-4 sm:gap-6">
+                  <span className="font-sans text-[10px] font-semibold tracking-[0.18em] text-ink-soft tabular-nums shrink-0">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+
                   <span
-                    className={`font-bold text-sm uppercase tracking-wide ${
-                      isSelected ? "text-[#BD3900]" : "text-gray-500"
+                    className={`flex-1 font-serif text-[1.0625rem] leading-[1.5] ${
+                      isSelected ? "text-ink" : "text-ink-soft"
                     }`}
                   >
-                    {opt.text} {isSelected && " ✓"}
+                    {opt.text}
+                    {isSelected && (
+                      <span className="ml-2 font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-accent">
+                        Your vote
+                      </span>
+                    )}
                   </span>
+
                   <span
-                    className={`text-sm font-bold ${isSelected ? "text-[#BD3900]" : "text-gray-400"}`}
+                    className={`font-sans text-[0.9375rem] font-semibold tabular-nums shrink-0 ${
+                      isLeading ? "text-ink" : "text-ink-soft"
+                    }`}
                   >
                     {percentage}%
                   </span>
                 </div>
 
-                {/* Independent Progress Bar */}
-                <div className="w-full h-1 bg-zinc-100 overflow-hidden relative z-10">
+                <div className="mt-3 ml-[calc(0.75rem+1.5rem)] sm:ml-[calc(0.75rem+2rem)] h-px bg-rule relative">
                   <motion.div
-                    className={`h-full ${isSelected ? "bg-[#BD3900]" : "bg-zinc-300"}`}
+                    className={`absolute inset-y-0 left-0 h-px ${
+                      isSelected ? "bg-accent" : "bg-ink/30"
+                    }`}
                     initial={{ width: 0 }}
-                    animate={{ width: `${percentage}%` }}
+                    animate={{ width: `${barWidth}%` }}
                     transition={{
-                      duration: 1.2,
-                      ease: [0.32, 0.72, 0, 1],
-                      delay: 0.2,
+                      duration: 1.1,
+                      ease: [0.16, 1, 0.3, 1],
+                      delay: 0.15 + index * 0.08,
                     }}
                   />
                 </div>
-              </motion.div>
+              </motion.li>
             );
           }
 
-          // --- STATE 1: THE ASK (Voting) ---
           return (
-            <motion.button
+            <motion.li
               key={opt.id}
-              onClick={() => handleVote(opt.id)}
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1, duration: 0.4 }}
-              className="group relative w-full border border-zinc-200 bg-white p-6 flex items-center justify-between hover:border-black/20 hover:shadow-sm transition-all duration-300 text-left cursor-pointer"
+              transition={{ delay: index * 0.08, duration: 0.5 }}
             >
-              <span className="font-bold text-sm uppercase tracking-wide text-black group-hover:translate-x-2 transition-transform duration-300">
-                {opt.text}
-              </span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-[#BD3900] opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                Select ➔
-              </span>
-            </motion.button>
+              <button
+                onClick={() => handleVote(opt.id)}
+                className="group w-full text-left flex items-baseline gap-4 sm:gap-6 py-5 border-b border-rule cursor-pointer"
+              >
+                <span className="font-sans text-[10px] font-semibold tracking-[0.18em] text-ink-soft tabular-nums shrink-0">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+
+                <span className="flex-1 font-serif text-[1.0625rem] leading-[1.5] text-ink group-hover:text-accent transition-colors duration-300">
+                  {opt.text}
+                </span>
+
+                <span
+                  aria-hidden
+                  className="shrink-0 w-6 h-px bg-rule transition-all duration-500 group-hover:w-12 group-hover:bg-accent"
+                />
+              </button>
+            </motion.li>
           );
         })}
-      </div>
+      </ol>
 
-      {/* FOOTER METADATA */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="mt-10 text-center"
-      >
-        <span className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-          {totalVotes.toLocaleString()} Total Votes
+      <footer className="mt-6 flex items-center gap-3">
+        <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink-soft tabular-nums">
+          {totalVotes.toLocaleString()} {totalVotes === 1 ? "Vote" : "Votes"}
         </span>
-      </motion.div>
-    </motion.div>
+        {!hasVoted && (
+          <>
+            <span aria-hidden className="w-5 h-px bg-rule" />
+            <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink-soft">
+              Select to see results
+            </span>
+          </>
+        )}
+      </footer>
+    </motion.section>
   );
 };
 

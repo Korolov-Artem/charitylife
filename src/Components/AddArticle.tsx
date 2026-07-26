@@ -1,6 +1,5 @@
-import React, { ChangeEvent, FormEvent, useState } from "react";
+import React, { ChangeEvent, FormEvent, useState, useEffect } from "react";
 import { useCreateArticleMutation } from "../services/articlesApi.ts";
-// IMPORTANT: We use the media API here so it syncs with the drawer!
 import { useUploadMediaMutation } from "../services/mediaApi.ts";
 import { Editor } from "./Editor.tsx";
 import { useNavigate } from "react-router-dom";
@@ -12,7 +11,6 @@ const AddArticle = () => {
   const [theme, setTheme] = useState("");
   const [content, setContent] = useState("");
 
-  // We store the uploaded URL and the file name for the UI
   const [coverImageUrl, setCoverImageUrl] = useState<string | null>(null);
   const [coverImageName, setCoverImageName] = useState<string | null>(null);
 
@@ -22,18 +20,50 @@ const AddArticle = () => {
   const [createArticle, { isLoading: isCreating }] = useCreateArticleMutation();
   const navigate = useNavigate();
 
-  // Instant Cover Image Upload Logic
+  const DRAFT_KEY = "charity_life_article_draft";
+
+  // 1. LOAD DRAFT ON MOUNT
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(DRAFT_KEY);
+    if (savedDraft) {
+      try {
+        const parsed = JSON.parse(savedDraft);
+        setTitle(parsed.title || "");
+        setSynopsis(parsed.synopsis || "");
+        setTheme(parsed.theme || "");
+        setContent(parsed.content || "");
+        setCoverImageUrl(parsed.coverImageUrl || null);
+        setCoverImageName(parsed.coverImageName || null);
+      } catch (error) {
+        console.error("Failed to parse article draft", error);
+      }
+    }
+  }, []);
+
+  // 2. AUTO-SAVE DRAFT ON CHANGE
+  useEffect(() => {
+    const draft = {
+      title,
+      synopsis,
+      theme,
+      content,
+      coverImageUrl,
+      coverImageName,
+    };
+    // Only save if at least one field has some content to prevent saving empty drafts continuously
+    if (title || synopsis || theme || content || coverImageUrl) {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    }
+  }, [title, synopsis, theme, content, coverImageUrl, coverImageName]);
+
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       setFormError(null);
-      setCoverImageName(file.name); // Save name to show the user
+      setCoverImageName(file.name);
 
       try {
-        // Upload immediately to the server
         const uploadResponse = await uploadImage(file).unwrap();
-
-        // Save the URL for when we finally submit the article
         setCoverImageUrl(uploadResponse.url);
       } catch (error) {
         console.error("Cover image upload failed:", error);
@@ -47,9 +77,10 @@ const AddArticle = () => {
     e.preventDefault();
     setFormError(null);
 
-    // We check if the coverImageUrl is ready instead of the raw file
     if (!coverImageUrl || !title || !content || !theme || !synopsis) {
-      setFormError("Please fill in all fields and wait for the cover image to finish uploading.");
+      setFormError(
+        "Please fill in all fields and wait for the cover image to finish uploading.",
+      );
       return;
     }
 
@@ -59,10 +90,14 @@ const AddArticle = () => {
         content,
         synopsis,
         theme,
-        image: coverImageUrl, // Use the already uploaded URL
+        image: coverImageUrl,
       };
 
       await createArticle(articleData).unwrap();
+
+      // 3. CLEAR DRAFT ON SUCCESSFUL PUBLISH
+      localStorage.removeItem(DRAFT_KEY);
+
       navigate("/");
     } catch (error) {
       console.error("Failed to publish:", error);
@@ -74,7 +109,6 @@ const AddArticle = () => {
 
   return (
     <div className="max-w-4xl mx-auto px-6 lg:px-0 pt-10">
-
       <button
         className="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#BD3900] transition-colors duration-300 mb-10"
         onClick={() => navigate("/")}
@@ -135,7 +169,6 @@ const AddArticle = () => {
             </div>
           </div>
 
-          {/* --- REFINED COVER IMAGE UPLOAD --- */}
           <div>
             <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-2">
               Cover Image
@@ -144,7 +177,9 @@ const AddArticle = () => {
               <span className="flex flex-col items-center space-y-2">
                 <span className="font-serif text-sm text-gray-500 group-hover:text-[#BD3900] transition-colors">
                   {isUploading ? (
-                    <span className="text-gray-400 animate-pulse">Archiving artwork...</span>
+                    <span className="text-gray-400 animate-pulse">
+                      Archiving artwork...
+                    </span>
                   ) : coverImageName ? (
                     <span className="text-[#BD3900] font-bold">
                       {coverImageName} (Ready)
@@ -153,7 +188,6 @@ const AddArticle = () => {
                     "Select a high-resolution cover image"
                   )}
                 </span>
-
               </span>
               <input
                 type="file"

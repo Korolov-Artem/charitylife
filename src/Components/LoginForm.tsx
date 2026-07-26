@@ -17,7 +17,7 @@ const LoginForm = () => {
     setFormError(null);
 
     try {
-      await login({ loginOrEmail: email, password }).unwrap();
+      await login({ email, password }).unwrap();
       navigate("/"); // Redirect on success
     } catch (error: any) {
       if (error.data) {

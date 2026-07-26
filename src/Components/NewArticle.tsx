@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { getImageUrl } from "./getImageUrl.ts";
 import { ArticleType } from "../types/ArticleType.ts";
 import { motion } from "framer-motion";
+import EditorialImage from "./EditorialImage";
 
 const formatDate = (dateString: string) => {
   return new Date(dateString)
@@ -41,15 +42,15 @@ const NewArticle = () => {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 xl:gap-12 pb-16 h-screen">
-        <div className="xl:col-span-7 h-[600px] bg-[#fafafa] animate-pulse"></div>
-        <div className="xl:col-span-5 h-[600px] bg-[#fafafa] animate-pulse"></div>
+        <div className="xl:col-span-7 h-[600px] bg-[#eceae6] animate-pulse"></div>
+        <div className="xl:col-span-5 h-[600px] bg-[#eceae6] animate-pulse"></div>
       </div>
     );
   }
 
   if (isError) {
     return (
-      <div className="p-4 font-sans text-sm tracking-widest uppercase text-zinc-500">
+      <div className="p-4 font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink-soft">
         Error loading articles
       </div>
     );
@@ -57,7 +58,7 @@ const NewArticle = () => {
 
   if (!articles || articles.length === 0) {
     return (
-      <p className="py-10 text-gray-500 font-sans text-sm tracking-widest uppercase">
+      <p className="py-10 font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink-soft">
         No articles found
       </p>
     );
@@ -77,6 +78,7 @@ const NewArticle = () => {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
+      data-cursor="read"
     >
       {/* ---------------- LEFT SIDE: MAIN ARTICLE ---------------- */}
       <motion.div
@@ -87,7 +89,7 @@ const NewArticle = () => {
         {/* Removed min-height restriction so titles sit naturally at the absolute top */}
         <div className="mb-6 flex flex-col">
           <h2
-            className="text-4xl lg:text-[4rem] font-serif font-normal text-black leading-[1.05] tracking-tight cursor-pointer hover:text-zinc-600 transition-colors duration-300 break-words line-clamp-3"
+            className="font-display text-4xl lg:text-[4rem] font-normal text-ink leading-[1.02] tracking-[-0.02em] text-balance cursor-pointer hover:text-accent transition-colors duration-300 break-words line-clamp-3"
             onClick={() => handleNavigate(mainArticle.id)}
           >
             {mainArticle.title}
@@ -98,19 +100,22 @@ const NewArticle = () => {
           className="w-full aspect-[4/5] xl:aspect-[2/3] relative group overflow-hidden cursor-pointer"
           onClick={() => handleNavigate(mainArticle.id)}
         >
-          <div className="absolute top-0 left-0 bg-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest z-10 border border-black/15">
+          <div className="absolute top-0 left-0 z-10 bg-paper/85 backdrop-blur-sm px-3 py-2 border border-rule font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink">
             {mainArticle.theme || "Design"}
           </div>
 
           {mainArticle.image ? (
-            <img
-              src={getImageUrl(mainArticle.image)}
-              alt={mainArticle.title}
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[1.5s] ease-out"
-            />
+            <div className="absolute inset-0">
+              <EditorialImage
+                src={getImageUrl(mainArticle.image)}
+                alt={mainArticle.title}
+                mode="fill"
+                imgClassName="group-hover:scale-105 transition-transform duration-[1.5s] ease-out"
+              />
+            </div>
           ) : (
-            <div className="absolute inset-0 w-full h-full bg-zinc-100 flex items-center justify-center">
-              <span className="text-zinc-400 font-sans tracking-widest uppercase text-xs">
+            <div className="absolute inset-0 w-full h-full bg-[#eceae6] flex items-center justify-center">
+              <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink-soft">
                 No Image
               </span>
             </div>
@@ -118,8 +123,8 @@ const NewArticle = () => {
         </div>
 
         <div className="flex-none h-[60px] mt-6 flex flex-col justify-end">
-          <hr className="border-t border-black/20 mb-3" />
-          <div className="text-[10px] uppercase tracking-[0.2em] font-bold font-sans text-black">
+          <hr className="border-t border-rule mb-3" />
+          <div className="font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink-soft">
             {formatDate(mainArticle.dataPublished)}
           </div>
         </div>
@@ -138,7 +143,7 @@ const NewArticle = () => {
             {/* Removed forced spacing; top-right article hugs the top edge just like the left side */}
             <div className={`mb-6 flex flex-col ${index > 0 ? "xl:mt-12" : ""}`}>
               <h3
-                className="text-2xl lg:text-3xl font-serif font-normal text-black leading-[1.1] cursor-pointer hover:text-zinc-600 transition-colors break-words line-clamp-3"
+                className="font-display text-2xl lg:text-3xl font-normal text-ink leading-[1.08] tracking-[-0.015em] text-balance cursor-pointer hover:text-accent transition-colors break-words line-clamp-3"
                 onClick={() => handleNavigate(article.id)}
               >
                 {article.title}
@@ -149,24 +154,27 @@ const NewArticle = () => {
               className="w-full aspect-[4/3] xl:aspect-auto xl:flex-1 relative group overflow-hidden cursor-pointer"
               onClick={() => handleNavigate(article.id)}
             >
-              <div className="absolute top-0 left-0 bg-white px-2 py-1 text-[8px] font-bold uppercase tracking-widest z-10 border border-black/15">
+              <div className="absolute top-0 left-0 z-10 bg-paper/85 backdrop-blur-sm px-2.5 py-1.5 border border-rule font-sans text-[9px] font-semibold uppercase tracking-[0.22em] text-ink">
                 {article.theme || "Feature"}
               </div>
 
               {article.image ? (
-                <img
-                  src={getImageUrl(article.image)}
-                  alt={article.title}
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[1.5s] ease-out"
-                />
+                <div className="absolute inset-0">
+                  <EditorialImage
+                    src={getImageUrl(article.image)}
+                    alt={article.title}
+                    mode="fill"
+                    imgClassName="group-hover:scale-105 transition-transform duration-[1.5s] ease-out"
+                  />
+                </div>
               ) : (
-                <div className="absolute inset-0 w-full h-full bg-zinc-100 flex items-center justify-center"></div>
+                <div className="absolute inset-0 w-full h-full bg-[#eceae6] flex items-center justify-center"></div>
               )}
             </div>
 
             <div className="flex-none h-[60px] mt-6 flex flex-col justify-end">
-              <hr className="border-t border-black/20 mb-3" />
-              <div className="text-[10px] uppercase tracking-[0.2em] font-bold font-sans text-black">
+              <hr className="border-t border-rule mb-3" />
+              <div className="font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink-soft">
                 {formatDate(article.dataPublished)}
               </div>
             </div>

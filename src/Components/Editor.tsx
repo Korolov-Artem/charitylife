@@ -1,6 +1,6 @@
 import "react-quill-new/dist/quill.snow.css";
 import ReactQuill, { Quill } from "react-quill-new";
-import React, { useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useUploadMediaMutation } from "../services/mediaApi.ts";
 import MediaDrawer from "./MediaDrawer.tsx";
 
@@ -72,10 +72,109 @@ interface EditorProps {
   onChange: (content: string) => void;
 }
 
+/**
+ * Rebuild a File from a data: URI so it can go through the normal upload path.
+ */
+const dataUriToFile = (uri: string): File | null => {
+  const match = /^data:([^;,]+)(;base64)?,([\s\S]*)$/.exec(uri);
+  if (!match) return null;
+
+  const [, mime, base64Flag, payload] = match;
+
+  try {
+    const binary = base64Flag ? atob(payload) : decodeURIComponent(payload);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+
+    const ext = (mime.split("/")[1] || "png").split("+")[0];
+    return new File([bytes], `pasted-${Date.now()}.${ext}`, { type: mime });
+  } catch {
+    return null;
+  }
+};
+
 export const Editor = ({ value, onChange }: EditorProps) => {
   const quillRef = useRef<ReactQuill>(null);
   const [isMediaDrawerOpen, setIsMediaDrawerOpen] = useState(false);
   const [uploadFile] = useUploadMediaMutation();
+
+  const absorbing = useRef(false);
+
+  /**
+   * Sweep any data: URI images out of the document and into the media archive.
+   *
+   * The paste and drop handlers below catch images arriving as *files*, but an
+   * image can also arrive inlined in pasted text/html — Quill keeps those as
+   * base64 and they end up persisted inside the article body. One screenshot
+   * pasted this way put 1.39MB into a single article, which every list endpoint
+   * then ships to every reader. This is the backstop that catches whatever the
+   * file-level handlers don't.
+   */
+  const absorbDataUris = useCallback(async () => {
+    const quill = quillRef.current?.getEditor();
+    if (!quill || absorbing.current) return;
+
+    const nodes = Array.from(
+      quill.root.querySelectorAll('img[src^="data:"]'),
+    ) as HTMLImageElement[];
+    if (!nodes.length) return;
+
+    absorbing.current = true;
+    try {
+      for (const node of nodes) {
+        const file = dataUriToFile(node.getAttribute("src") ?? "");
+        if (!file) continue;
+
+        try {
+          const result = await uploadFile(file).unwrap();
+          const url = `${metaUrl}${result.url}`;
+
+          // Resolve the node's position through Quill rather than editing the
+          // DOM directly, so the document model stays authoritative.
+          const blot = Quill.find(node);
+          if (!blot) continue;
+          const index = quill.getIndex(blot as never);
+
+          quill.deleteText(index, 1, "user");
+          quill.insertEmbed(index, "image", url, "user");
+        } catch (error) {
+          // Leave the inline copy in place: a heavy article beats a lost one.
+          console.error("Failed to archive inlined image", error);
+        }
+      }
+    } finally {
+      absorbing.current = false;
+    }
+  }, [uploadFile]);
+
+  const handleDropCapture = async (e: React.DragEvent<HTMLDivElement>) => {
+    const files = Array.from(e.dataTransfer?.files ?? []).filter((f) =>
+      f.type.startsWith("image/"),
+    );
+    if (!files.length) return;
+
+    // Pre-empt Quill's default drop, which inlines the file as base64.
+    e.preventDefault();
+    e.stopPropagation();
+
+    const quill = quillRef.current?.getEditor();
+    if (!quill) return;
+
+    for (const file of files) {
+      try {
+        const result = await uploadFile(file).unwrap();
+        const url = `${metaUrl}${result.url}`;
+        const range = quill.getSelection() || {
+          index: quill.getLength(),
+          length: 0,
+        };
+        quill.insertEmbed(range.index, "image", url);
+        quill.setSelection(range.index + 1);
+      } catch (error) {
+        console.error("Drop upload failed", error);
+      }
+    }
+  };
 
   const handlePasteCapture = async (e: React.ClipboardEvent<HTMLDivElement>) => {
     if (e.clipboardData && e.clipboardData.files && e.clipboardData.files.length > 0) {
@@ -167,12 +266,16 @@ export const Editor = ({ value, onChange }: EditorProps) => {
     <div
       className="editorial-editor-wrapper w-full h-full flex flex-col relative"
       onPasteCapture={handlePasteCapture}
+      onDropCapture={handleDropCapture}
     >
       <ReactQuill
         ref={quillRef}
         theme="snow"
         value={value}
-        onChange={onChange}
+        onChange={(html) => {
+          onChange(html);
+          void absorbDataUris();
+        }}
         modules={modules}
         placeholder="Write your editorial piece here..."
         className="bg-[#FAFAFA] font-serif flex-1 flex flex-col"

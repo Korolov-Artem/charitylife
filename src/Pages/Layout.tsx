@@ -8,6 +8,7 @@ import MediaCarousel from "../Components/MediaCarousel";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../redux/authSlice";
 import ActivePoll from "../Components/ActivePoll";
+import CuratedQuotes from "../Components/CuratedQuotes";
 
 const themes = [
   { id: "design", label: "Дизайн", marginClass: "ml-0" },
@@ -50,6 +51,7 @@ const FeaturedItem = ({
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => handleNavigate(article.id)}
       className="flex flex-wrap gap-4 cursor-pointer"
+      data-cursor="read"
     >
       <motion.div
         layout
@@ -105,12 +107,15 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const dispatch = useDispatch();
 
   const isHomePage = location.pathname === "/";
+  // Section pages run edge-to-edge and manage their own gutters, so they opt out
+  // of the shared measure below.
+  const isFullBleed = location.pathname.startsWith("/theme/");
   const [isLeftSidebarOpen, setIsLeftSidebarOpen] = useState(true);
   const [isSidebarScrolling, setIsSidebarScrolling] = useState(false);
   const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const isAuthenticated = useSelector(
-    (state: any) => state.auth.isAuthenticated
+    (state: any) => state.auth.isAuthenticated,
   );
   const userRole = useSelector((state: any) => state.auth.role);
 
@@ -207,7 +212,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                   animate={{
                     opacity: isLeftSidebarOpen && !isHomePage ? 1 : 0,
                     y: isLeftSidebarOpen && !isHomePage ? 0 : -10,
-                    pointerEvents: isLeftSidebarOpen && !isHomePage ? "auto" : "none",
+                    pointerEvents:
+                      isLeftSidebarOpen && !isHomePage ? "auto" : "none",
                   }}
                   transition={{ duration: 0.3 }}
                   className="flex items-center cursor-pointer group w-max"
@@ -356,21 +362,25 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         </motion.aside>
 
         {/* ── MAIN CONTENT ── */}
-        <main className="flex-1 min-w-0 bg-[#fafafa] overflow-y-auto">
+        <main
+          className={`flex-1 min-w-0 bg-[#fafafa] overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] transition-all duration-500 ${
+            !isHomePage && !isFullBleed ? "lg:pr-[80px]" : ""
+          }`}
+        >
           <motion.header
             initial={false}
             animate={{
               opacity: isHomePage ? 1 : 0,
               height: isHomePage ? "3.5rem" : "0rem",
             }}
-            className="border-b-[3px] border-black/10 flex items-center justify-center bg-[#fafafa] sticky top-0 z-20 overflow-hidden"
+            className="flex items-center justify-center bg-[#fafafa] sticky top-0 z-20 overflow-hidden"
           >
             <span className="text-md font-bold uppercase tracking-[0.2em] text-black">
               All Topics
             </span>
           </motion.header>
 
-          <div className="px-6 py-10 lg:px-10 max-w-6xl mx-auto">
+          <div className={isFullBleed ? "" : "px-6 py-10 lg:px-10 max-w-6xl mx-auto"}>
             {children}
           </div>
 
@@ -379,13 +389,18 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               <h2 className="text-center text-xs font-bold uppercase tracking-[0.3em] text-gray-400 mb-8">
                 Editorial Highlights
               </h2>
+
               <MediaCarousel />
 
+              {/* 1. Poll goes first now */}
               <div className="mt-20 px-6 lg:px-10">
                 <div className="max-w-3xl mx-auto">
                   <ActivePoll />
                 </div>
               </div>
+
+              {/* 2. Magazine Cutout Quotes go underneath */}
+              <CuratedQuotes />
             </div>
           )}
         </main>
@@ -404,9 +419,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <motion.div
             layoutScroll
             onScroll={handleRightSidebarScroll}
-            className="w-[400px] h-full overflow-y-auto no-scrollbar"
+            className="w-[400px] h-full overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
           >
-            <div className="h-14 sticky top-0 bg-[#fafafa] flex items-center border-b-[3px] border-black/10 z-10 px-8 mb-6">
+            <div className="h-14 sticky top-0 bg-[#fafafa] flex items-center z-10 px-8 mb-6">
               <h3 className="text-md mt-2 font-bold uppercase tracking-[0.2em] text-black">
                 Featured
               </h3>
@@ -414,7 +429,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
             <div
               className={`flex flex-col gap-8 px-8 pb-8 transition-all duration-150 ${
-                isSidebarScrolling ? "pointer-events-none" : "pointer-events-auto"
+                isSidebarScrolling
+                  ? "pointer-events-none"
+                  : "pointer-events-auto"
               }`}
             >
               {isLoading ? (

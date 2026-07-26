@@ -3,13 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { useGetRandomArticlesQuery } from "../services/articlesApi";
 import { getImageUrl } from "./getImageUrl";
 import { ArticleType } from "../types/ArticleType";
+import EditorialImage from "./EditorialImage";
 import { motion, PanInfo } from "framer-motion";
+
+const formatDate = (dateString: string) =>
+  new Date(dateString)
+    .toLocaleDateString("uk-UA", { year: "numeric", month: "short", day: "2-digit" })
+    .toUpperCase();
 
 const MediaCarousel = () => {
   const { data: randomArticles, isLoading } = useGetRandomArticlesQuery({
     limit: 10,
   });
-  const articles = randomArticles || [];
+  const articles: ArticleType[] = randomArticles || [];
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -28,27 +34,23 @@ const MediaCarousel = () => {
     return () => clearInterval(timer);
   }, [articles.length, isHovered]);
 
-  // --- NEW: THE SWIPE LOGIC ---
   const handleDragEnd = (
-    event: MouseEvent | TouchEvent | PointerEvent,
+    _event: MouseEvent | TouchEvent | PointerEvent,
     info: PanInfo,
   ) => {
-    // How many pixels the user must drag to trigger a slide change
     const swipeThreshold = 50;
 
     if (info.offset.x < -swipeThreshold) {
-      // User dragged left -> Go to Next Slide
       setCurrentIndex((prev) => (prev === articles.length - 1 ? 0 : prev + 1));
     } else if (info.offset.x > swipeThreshold) {
-      // User dragged right -> Go to Previous Slide
       setCurrentIndex((prev) => (prev === 0 ? articles.length - 1 : prev - 1));
     }
   };
 
   if (isLoading) {
     return (
-      <div className="h-[400px] flex items-center justify-center text-gray-400 font-bold uppercase tracking-widest text-xs">
-        Loading Highlights...
+      <div className="h-[400px] flex items-center justify-center font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink-soft animate-pulse">
+        Loading Highlights
       </div>
     );
   }
@@ -57,7 +59,7 @@ const MediaCarousel = () => {
 
   return (
     <div
-      // ADDED: touch-pan-y prevents the browser from canceling the drag gesture on mobile
+      // touch-pan-y prevents the browser from cancelling the drag gesture on mobile
       className="w-full flex flex-col items-center overflow-hidden py-10 touch-pan-y"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -76,19 +78,18 @@ const MediaCarousel = () => {
           return (
             <motion.div
               key={article.id}
+              data-cursor="read"
               className="absolute w-[80%] sm:w-[60%] lg:w-[45%] max-w-3xl h-full cursor-grab active:cursor-grabbing"
-
-              // --- NEW: FRAMER MOTION GESTURES ---
-              drag="x" // Enables horizontal dragging
-              dragConstraints={{ left: 0, right: 0 }} // Snaps back to center
-              dragElastic={0.6} // Gives it a nice "heavy" rubber-band resistance
-              onDragEnd={handleDragEnd} // Fires our swipe math when they let go
-
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.6}
+              onDragEnd={handleDragEnd}
+              // Neighbours stay the same size and stay in colour: a contact sheet,
+              // not a coverflow. Only opacity recedes, which is enough to say
+              // "there is more of this strip" without the 2008 affordance.
               animate={{
                 x: `calc(${offset * 100}% + ${offset * 1.5}rem)`,
-                scale: isActive ? 1 : 1 - Math.abs(offset) * 0.1,
-                opacity: isVisible ? (isActive ? 1 : 0.6) : 0,
-                filter: isActive ? "grayscale(0%)" : "grayscale(100%)",
+                opacity: isVisible ? (isActive ? 1 : 0.45) : 0,
                 zIndex: isActive ? 10 : 5 - Math.abs(offset),
               }}
               transition={{
@@ -98,33 +99,38 @@ const MediaCarousel = () => {
                 mass: 0.8,
               }}
               onClick={() => {
-                // If clicked, navigate. If side card is clicked, bring to center.
                 if (isActive) navigate(`/${article.id}`);
                 else setCurrentIndex(idx);
               }}
               style={{ pointerEvents: isVisible ? "auto" : "none" }}
             >
-              {/* --- THE CARD --- */}
-              <div className="bg-[#fafafa] h-full flex flex-col pointer-events-none">
-                <div className="relative flex-1 overflow-hidden bg-zinc-200">
+              <div className="group bg-paper h-full flex flex-col pointer-events-none">
+                {/* No scrim: nothing is set over the photograph, so darkening it
+                    only muddies the picture. */}
+                <div className="relative flex-1 overflow-hidden">
                   {article.image ? (
-                    <img
+                    <EditorialImage
                       src={getImageUrl(article.image)}
                       alt={article.title}
-                      className={`w-full h-full object-cover transition-transform duration-700 ${
-                        isActive ? "hover:scale-105" : ""
-                      }`}
+                      mode="fill"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400 uppercase tracking-widest text-[10px]">
-                      No Image
-                    </div>
+                    <div className="w-full h-full bg-[#eceae6]" />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                 </div>
 
-                <div className="h-32 px-6 lg:px-12 flex items-center justify-center text-center bg-[#fafafa]">
-                  <h3 className="text-2xl lg:text-3xl font-serif text-black leading-tight line-clamp-2 transition-colors group-hover:text-[#BD3900]">
+                <div className="h-28 pt-4 flex flex-col justify-start border-t border-rule">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-accent">
+                      {article.theme || "Editorial"}
+                    </span>
+                    <span aria-hidden className="w-5 h-px bg-rule" />
+                    <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink-soft">
+                      {formatDate(article.dataPublished)}
+                    </span>
+                  </div>
+
+                  <h3 className="font-display text-2xl lg:text-[1.875rem] font-normal text-ink leading-[1.1] tracking-[-0.015em] text-balance line-clamp-2">
                     {article.title}
                   </h3>
                 </div>
@@ -134,7 +140,7 @@ const MediaCarousel = () => {
         })}
       </div>
 
-      {/* --- PAGINATION DOTS --- */}
+      {/* --- PAGINATION --- */}
       <div className="flex gap-2 mt-8 z-20 relative">
         {articles.map((_, idx) => (
           <button
@@ -144,10 +150,10 @@ const MediaCarousel = () => {
             aria-label={`Go to slide ${idx + 1}`}
           >
             <div
-              className={`h-[2px] transition-all duration-500 ${
+              className={`h-px transition-all duration-500 ${
                 currentIndex === idx
-                  ? "bg-[#BD3900] w-12"
-                  : "bg-gray-300 w-6 group-hover:bg-gray-500 group-hover:w-8"
+                  ? "bg-accent w-12"
+                  : "bg-rule w-6 group-hover:bg-ink-soft group-hover:w-8"
               }`}
             />
           </button>

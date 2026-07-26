@@ -1,5 +1,30 @@
 @import "tailwindcss";
 
+/* --- EDITORIAL TYPE SYSTEM ---
+   display : headlines & drop caps (high-contrast, sparse)
+   serif   : long-form reading face (optical-size variable)
+   sans    : kickers, folios, captions — labels only, never body  */
+@theme {
+    --font-display: "Newsreader", ui-serif, Georgia, serif;
+    --font-serif: "Newsreader", ui-serif, Georgia, serif;
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+    --color-ink: #17140f;
+    --color-ink-soft: #6b645c;
+    --color-paper: #faf9f7;
+    --color-accent: #bd3900;
+    --color-rule: rgba(23, 20, 15, 0.14);
+}
+
+/* Newsreader carries a real optical-size axis, so display and text are cuts of
+   one family rather than two families. Headlines take opsz 72: wider apertures,
+   finer hairlines, tighter fit — drawn to be read large. Body keeps the text cut
+   at its default size, drawn to be read small.
+   Unlayered on purpose, so it wins over the generated font-display utility. */
+.font-display {
+    font-variation-settings: "opsz" 72;
+}
+
 .ql-snow .ql-picker.ql-size .ql-picker-label[data-value="10px"]::before,
 .ql-snow .ql-picker.ql-size .ql-picker-item[data-value="10px"]::before {
     content: "10px";
