@@ -74,17 +74,16 @@ const ArticleOutro = ({ article }: Props) => {
           <div className="grid grid-cols-12 gap-x-6 lg:gap-x-10">
             <div className="col-span-12 md:col-span-10 md:col-start-2 lg:col-span-6 lg:col-start-4">
               <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-accent">
-                The archive, so far
+                Архів наразі
               </span>
               <p className="mt-5 font-serif text-[1.25rem] lg:text-[1.5rem] leading-[1.45] text-ink text-pretty max-w-[34ch]">
-                This is everything we've published to date. More is being
-                written.
+                Це все, що ми опублікували на сьогодні. Далі буде.
               </p>
               <button
                 onClick={() => navigate("/")}
                 className="mt-8 group font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink hover:text-accent transition-colors inline-flex items-center gap-3"
               >
-                Return to the front page
+                Повернутися на головну
                 <span
                   aria-hidden
                   className="w-8 h-px bg-ink transition-all duration-500 group-hover:w-14 group-hover:bg-accent"
@@ -126,7 +125,7 @@ const ArticleOutro = ({ article }: Props) => {
           </div>
 
           <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink inline-flex items-center gap-3">
-            Continue reading
+            Читати далі
             <span
               aria-hidden
               className="w-8 h-px bg-ink transition-all duration-500 group-hover:w-14 group-hover:bg-accent"

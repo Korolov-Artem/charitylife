@@ -69,7 +69,7 @@ const Suggestions = ({ theme }: { theme: string }) => {
       <div className="max-w-[1600px] mx-auto px-6 lg:px-12 xl:px-20">
         <div className="flex items-center gap-6 mb-16">
           <h2 className="text-[#fafafa] text-[10px] font-bold uppercase tracking-[0.4em] whitespace-nowrap">
-            Read Next
+            Читати далі
           </h2>
           <div className="h-[1px] w-full bg-[#fafafa]/20" />
         </div>
@@ -104,7 +104,7 @@ const Suggestions = ({ theme }: { theme: string }) => {
                 <span className="block h-[1px] w-0 bg-[#fafafa] mt-6 transition-all duration-500 ease-out group-hover:w-full" />
 
                 <p className="mt-4 text-[10px] uppercase tracking-[0.2em] text-[#fafafa]/50 group-hover:text-[#fafafa] transition-colors duration-500">
-                  Read Editorial ➔
+                  Читати ➔
                 </p>
               </div>
             </motion.div>

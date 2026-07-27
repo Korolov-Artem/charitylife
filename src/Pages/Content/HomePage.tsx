@@ -31,7 +31,7 @@ const HomePage = () => {
     <div className="pb-8">
       <section className={`${GUTTER} pt-10 lg:pt-14`}>
         <div className="flex items-center gap-4 pb-8">
-          <span className={`${KICKER} text-accent`}>The Front Page</span>
+          <span className={`${KICKER} text-accent`}>Головна</span>
           <span aria-hidden className="flex-1 h-px bg-rule" />
           <span className={`${KICKER} text-ink-soft`}>
             {formatDate(new Date().toISOString())}
@@ -44,7 +44,7 @@ const HomePage = () => {
       <section className="border-t border-rule pt-12 lg:pt-16">
         <div className={GUTTER}>
           <div className="flex items-center gap-4">
-            <span className={`${KICKER} text-ink-soft`}>Editorial Highlights</span>
+            <span className={`${KICKER} text-ink-soft`}>Вибране</span>
             <span aria-hidden className="flex-1 h-px bg-rule" />
           </div>
         </div>
@@ -70,7 +70,7 @@ const HomePage = () => {
           <div className="grid grid-cols-12 gap-x-6 lg:gap-x-10">
             <div className="col-span-12 lg:col-span-10 lg:col-start-2">
               <h2 className={`${KICKER} text-ink-soft pb-6 border-b border-rule`}>
-                Also in this issue
+                Також у цьому випуску
               </h2>
 
               <ul>
@@ -97,7 +97,7 @@ const HomePage = () => {
                       </span>
 
                       <span className={`${KICKER} text-ink-soft shrink-0 hidden sm:block`}>
-                        {article.theme || "Editorial"}
+                        {article.theme || "Редакція"}
                       </span>
                     </button>
                   </li>

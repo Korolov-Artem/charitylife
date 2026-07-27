@@ -57,7 +57,7 @@ export const axiosBaseQuery = ({baseUrl} = {baseUrl: ""}) => {
                 return {
                     error: {
                         status: "UNKNOWN_ERROR",
-                        data: (err as Error).message || "An unexpected error occurred",
+                        data: (err as Error).message || "Сталася непередбачувана помилка",
                     } as CustomErrorType,
                 };
             }

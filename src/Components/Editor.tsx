@@ -3,8 +3,9 @@ import ReactQuill, { Quill } from "react-quill-new";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useUploadMediaMutation } from "../services/mediaApi.ts";
 import MediaDrawer from "./MediaDrawer.tsx";
+import { API_URL } from "../config.ts";
 
-const metaUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const metaUrl = API_URL;
 
 const BlockEmbed = Quill.import("blots/block/embed") as any;
 
@@ -273,7 +274,7 @@ export const Editor = ({ value, onChange }: EditorProps) => {
           void absorbDataUris();
         }}
         modules={modules}
-        placeholder="Write your editorial piece here..."
+        placeholder="Пишіть свій матеріал тут…"
         className="bg-[#FAFAFA] font-serif flex-1 flex flex-col"
       />
 

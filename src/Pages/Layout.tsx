@@ -93,13 +93,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               onClick={() => go("/allArticles")}
               className={`${KICKER} hidden lg:block text-ink-soft hover:text-accent`}
             >
-              Editorials
+              Публікації
             </button>
             <button
               onClick={() => go("/archive")}
               className={`${KICKER} hidden lg:block text-ink-soft hover:text-accent`}
             >
-              Archive
+              Архів
             </button>
 
             {isAuthenticated ? (
@@ -107,14 +107,14 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 onClick={handleLogout}
                 className={`${KICKER} hidden sm:block text-ink-soft hover:text-accent`}
               >
-                Log Out
+                Вийти
               </button>
             ) : (
               <button
                 onClick={() => go("/login")}
                 className={`${KICKER} hidden sm:block text-ink-soft hover:text-accent`}
               >
-                Log In
+                Увійти
               </button>
             )}
 
@@ -123,7 +123,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               aria-expanded={isIndexOpen}
               className={`${KICKER} flex items-center gap-2.5 text-ink hover:text-accent`}
             >
-              Index
+              Зміст
               <span aria-hidden className="flex flex-col gap-[3px]">
                 <span className="block w-4 h-px bg-current" />
                 <span className="block w-4 h-px bg-current" />
@@ -144,12 +144,12 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           >
             <div className="mx-auto w-full max-w-[1680px] px-6 sm:px-10 lg:px-16">
               <div className="h-16 flex items-center justify-between border-b border-rule">
-                <span className={`${KICKER} text-ink-soft`}>Index</span>
+                <span className={`${KICKER} text-ink-soft`}>Зміст</span>
                 <button
                   onClick={() => setIsIndexOpen(false)}
                   className={`${KICKER} text-ink hover:text-accent`}
                 >
-                  Close ✕
+                  Закрити ✕
                 </button>
               </div>
 
@@ -184,47 +184,47 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
               <div className="border-t border-rule py-10 flex flex-col sm:flex-row sm:items-start gap-8 sm:gap-16">
                 <div className="flex flex-col items-start gap-3">
-                  <span className={`${KICKER} text-ink-soft`}>Sections</span>
+                  <span className={`${KICKER} text-ink-soft`}>Розділи</span>
                   <button
                     onClick={() => go("/allArticles")}
                     className="font-serif text-[1.0625rem] text-ink hover:text-accent transition-colors"
                   >
-                    Read the Editorials
+                    Читати публікації
                   </button>
                   <button
                     onClick={() => go("/archive")}
                     className="font-serif text-[1.0625rem] text-ink hover:text-accent transition-colors"
                   >
-                    Visual Archive
+                    Візуальний архів
                   </button>
                 </div>
 
                 {userRole === "admin" && (
                   <div className="flex flex-col items-start gap-3">
-                    <span className={`${KICKER} text-accent`}>Editorial Desk</span>
+                    <span className={`${KICKER} text-accent`}>Редакція</span>
                     <button
                       onClick={() => go("/publish")}
                       className="font-serif text-[1.0625rem] text-ink hover:text-accent transition-colors"
                     >
-                      Create Article
+                      Створити статтю
                     </button>
                     <button
                       onClick={() => go("/publish-poll")}
                       className="font-serif text-[1.0625rem] text-ink hover:text-accent transition-colors"
                     >
-                      Create Poll
+                      Створити опитування
                     </button>
                   </div>
                 )}
 
                 <div className="flex flex-col items-start gap-3">
-                  <span className={`${KICKER} text-ink-soft`}>Account</span>
+                  <span className={`${KICKER} text-ink-soft`}>Обліковий запис</span>
                   {isAuthenticated ? (
                     <button
                       onClick={handleLogout}
                       className="font-serif text-[1.0625rem] text-ink hover:text-accent transition-colors"
                     >
-                      Log Out
+                      Вийти
                     </button>
                   ) : (
                     <>
@@ -232,13 +232,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                         onClick={() => go("/login")}
                         className="font-serif text-[1.0625rem] text-ink hover:text-accent transition-colors"
                       >
-                        Log In
+                        Увійти
                       </button>
                       <button
                         onClick={() => go("/register")}
                         className="font-serif text-[1.0625rem] text-ink hover:text-accent transition-colors"
                       >
-                        Register
+                        Зареєструватися
                       </button>
                     </>
                   )}
@@ -246,7 +246,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               </div>
 
               <div className="border-t border-rule py-8">
-                <span className={`${KICKER} text-ink-soft`}>© 2026 Archive</span>
+                <span className={`${KICKER} text-ink-soft`}>© 2026 Архів</span>
               </div>
             </div>
           </motion.div>
@@ -273,16 +273,16 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               </button>
 
               <p className="mt-5 font-serif text-[1rem] leading-[1.65] text-ink-soft text-pretty max-w-[34ch]">
-                An independent editorial archive on design, health, travel,
-                relationships and food — long-form writing and photography,
-                published slowly and kept permanently.
+                Незалежний редакційний архів про дизайн, здоровʼя, подорожі,
+                відносини та їжу — тексти й фотографія, які виходять поволі
+                й лишаються назавжди.
               </p>
             </div>
 
-            {/* Sections */}
+            {/* Розділи */}
             <nav className="col-span-6 lg:col-span-2 lg:col-start-6">
               <h2 className={`${KICKER} text-ink-soft pb-4 border-b border-rule`}>
-                Sections
+                Розділи
               </h2>
               <ul className="mt-4 flex flex-col items-start gap-2.5">
                 {themes.map((theme) => (
@@ -298,10 +298,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               </ul>
             </nav>
 
-            {/* Read */}
+            {/* Читати */}
             <nav className="col-span-6 lg:col-span-2">
               <h2 className={`${KICKER} text-ink-soft pb-4 border-b border-rule`}>
-                Read
+                Читати
               </h2>
               <ul className="mt-4 flex flex-col items-start gap-2.5">
                 <li>
@@ -309,7 +309,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                     onClick={() => go("/allArticles")}
                     className="font-serif text-[1rem] text-ink hover:text-accent transition-colors duration-300"
                   >
-                    The Journal
+                    Журнал
                   </button>
                 </li>
                 <li>
@@ -317,7 +317,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                     onClick={() => go("/archive")}
                     className="font-serif text-[1rem] text-ink hover:text-accent transition-colors duration-300"
                   >
-                    Visual Index
+                    Візуальний покажчик
                   </button>
                 </li>
                 <li>
@@ -325,21 +325,21 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                     onClick={() => go("/")}
                     className="font-serif text-[1rem] text-ink hover:text-accent transition-colors duration-300"
                   >
-                    Front Page
+                    Головна
                   </button>
                 </li>
               </ul>
             </nav>
 
-            {/* Contact */}
+            {/* Контакти */}
             <div className="col-span-12 lg:col-span-3 lg:col-start-10">
               <h2 className={`${KICKER} text-ink-soft pb-4 border-b border-rule`}>
-                Contact
+                Контакти
               </h2>
 
               <dl className="mt-4 flex flex-col gap-5">
                 <div>
-                  <dt className={`${KICKER} text-ink-soft`}>General enquiries</dt>
+                  <dt className={`${KICKER} text-ink-soft`}>Загальні запити</dt>
                   <dd className="mt-1.5">
                     <a
                       href="mailto:info@charitylife.org"
@@ -351,7 +351,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 </div>
 
                 <div>
-                  <dt className={`${KICKER} text-ink-soft`}>Aims & partnerships</dt>
+                  <dt className={`${KICKER} text-ink-soft`}>Цілі та партнерство</dt>
                   <dd className="mt-1.5">
                     <a
                       href="mailto:aims@charitylife.org"
@@ -378,7 +378,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               }
               className={`${KICKER} text-ink-soft hover:text-accent`}
             >
-              Back to top ↑
+              Догори ↑
             </button>
           </div>
         </div>

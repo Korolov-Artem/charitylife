@@ -24,7 +24,7 @@ const CreatePoll = () => {
 
   const addOption = () => {
     if (options.length >= 6) {
-      setError("Maximum of 6 options allowed to maintain design integrity.");
+      setError("Максимум 6 варіантів.");
       return;
     }
     setOptions([...options, ""]);
@@ -32,7 +32,7 @@ const CreatePoll = () => {
 
   const removeOption = (indexToRemove: number) => {
     if (options.length <= 2) {
-      setError("A poll must have at least 2 options.");
+      setError("Опитування має містити щонайменше 2 варіанти.");
       return;
     }
     setOptions(options.filter((_, idx) => idx !== indexToRemove));
@@ -44,15 +44,15 @@ const CreatePoll = () => {
       .map((opt) => opt.trim())
       .filter((opt) => opt.length > 0);
 
-    if (!question.trim()) return setError("Please enter a question.");
+    if (!question.trim()) return setError("Введіть питання.");
     if (validOptions.length < 2)
-      return setError("Please provide at least 2 valid options.");
+      return setError("Додайте щонайменше 2 непорожні варіанти.");
 
     try {
       await createPoll({ question, options: validOptions }).unwrap();
       navigate("/");
     } catch (err) {
-      setError("Failed to create the poll. Please try again.");
+      setError("Не вдалося створити опитування. Спробуйте ще раз.");
     }
   };
 
@@ -61,22 +61,21 @@ const CreatePoll = () => {
       <header className={`${GUTTER} pt-14 lg:pt-20 pb-8 border-b border-rule`}>
         <div className={`${GRID} items-end`}>
           <div className="col-span-12 lg:col-span-7">
-            <span className={`${KICKER} text-accent`}>Editorial Desk</span>
+            <span className={`${KICKER} text-accent`}>Редакція</span>
             <h1 className="mt-4 font-display font-normal text-[2.75rem] lg:text-[4rem] leading-[1.0] tracking-[-0.025em]">
-              Poll Studio
+              Студія опитувань
             </h1>
           </div>
 
           <div className="col-span-12 lg:col-span-4 lg:col-start-9 mt-6 lg:mt-0 lg:pb-2 flex items-end justify-between gap-6">
             <p className="font-serif text-[0.9375rem] leading-[1.5] text-ink-soft max-w-[30ch]">
-              Publishing here retires the poll currently running on the front
-              page.
+              Публікація завершить опитування, яке зараз на головній.
             </p>
             <button
               onClick={() => navigate(-1)}
               className={`${KICKER} text-ink-soft hover:text-accent transition-colors shrink-0`}
             >
-              Cancel
+              Скасувати
             </button>
           </div>
         </div>
@@ -88,7 +87,7 @@ const CreatePoll = () => {
             <form onSubmit={handleSubmit} className="space-y-12">
               <div>
                 <label className={`block ${KICKER} text-ink-soft mb-2`}>
-                  The Prompt
+                  Питання
                 </label>
                 <textarea
                   value={question}
@@ -96,7 +95,7 @@ const CreatePoll = () => {
                     setQuestion(e.target.value);
                     setError(null);
                   }}
-                  placeholder="What do you want to ask the readers?"
+                  placeholder="Що ви хочете запитати в читачів?"
                   rows={2}
                   className="w-full resize-none appearance-none border-b border-rule bg-transparent px-0 py-3 font-display text-[1.75rem] lg:text-[2rem] leading-[1.15] tracking-[-0.015em] text-ink placeholder:text-ink-soft/40 focus:border-accent focus:outline-none transition-colors"
                 />
@@ -104,7 +103,7 @@ const CreatePoll = () => {
 
               <div>
                 <label className={`block ${KICKER} text-ink-soft mb-6`}>
-                  Options
+                  Варіанти
                 </label>
 
                 <div className="space-y-4">
@@ -137,7 +136,7 @@ const CreatePoll = () => {
                           <button
                             type="button"
                             onClick={() => removeOption(idx)}
-                            title="Remove option"
+                            title="Видалити варіант"
                             className="shrink-0 w-4 opacity-0 group-hover:opacity-100 text-ink-soft hover:text-accent transition-all duration-300"
                           >
                             ✕
@@ -157,7 +156,7 @@ const CreatePoll = () => {
                     className={`mt-8 ${KICKER} text-ink-soft hover:text-accent transition-colors flex items-center gap-3`}
                   >
                     <span aria-hidden className="w-6 h-px bg-accent" />
-                    Add Option
+                    Додати варіант
                   </button>
                 )}
               </div>
@@ -192,12 +191,12 @@ const CreatePoll = () => {
           <div className="col-span-12 lg:col-span-6 lg:col-start-7 mt-16 lg:mt-0">
             <div className="lg:sticky lg:top-24">
               <div className="flex items-center gap-4 mb-8">
-                <span className={`${KICKER} text-ink-soft`}>Proof</span>
+                <span className={`${KICKER} text-ink-soft`}>Попередній перегляд</span>
                 <span aria-hidden className="flex-1 h-px bg-rule" />
               </div>
 
               <div className="border-t border-rule pt-10">
-                <span className={`${KICKER} text-accent`}>Community Poll</span>
+                <span className={`${KICKER} text-accent`}>Опитування</span>
                 <h2 className="mt-4 font-display text-[1.75rem] lg:text-[2.25rem] font-normal leading-[1.1] tracking-[-0.015em] text-balance max-w-[26ch]">
                   {question.trim() || "Your question will appear here"}
                 </h2>

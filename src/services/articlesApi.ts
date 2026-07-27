@@ -1,9 +1,10 @@
 import {createApi} from "@reduxjs/toolkit/query/react";
 import {axiosBaseQuery} from "./axiosBaseQuery.ts";
+import {API_URL} from "../config.ts";
 
 export const articlesApi = createApi({
     reducerPath: "articlesApi",
-    baseQuery: axiosBaseQuery({baseUrl: "http://localhost:3000/"}),
+    baseQuery: axiosBaseQuery({baseUrl: `${API_URL}/`}),
     tagTypes: ["Article"],
     endpoints: (builder) => ({
         getArticles: builder.query({

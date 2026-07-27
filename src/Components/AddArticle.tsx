@@ -71,7 +71,7 @@ const AddArticle = () => {
         setCoverImageUrl(uploadResponse.url);
       } catch (error) {
         console.error("Cover image upload failed:", error);
-        setFormError("Failed to upload the cover image to the archive.");
+        setFormError("Не вдалося завантажити обкладинку до архіву.");
         setCoverImageName(null);
       }
     }
@@ -83,7 +83,7 @@ const AddArticle = () => {
 
     if (!coverImageUrl || !title || !content || !theme || !synopsis) {
       setFormError(
-        "Please fill in all fields and wait for the cover image to finish uploading.",
+        "Заповніть усі поля та дочекайтеся завантаження обкладинки.",
       );
       return;
     }
@@ -102,7 +102,7 @@ const AddArticle = () => {
       navigate("/");
     } catch (error) {
       console.error("Failed to publish:", error);
-      setFormError("An error occurred while publishing. Please try again.");
+      setFormError("Під час публікації сталася помилка. Спробуйте ще раз.");
     }
   };
 
@@ -113,19 +113,19 @@ const AddArticle = () => {
       <header className={`${GUTTER} pt-14 lg:pt-20 pb-8 border-b border-rule`}>
         <div className={`${GRID} items-end`}>
           <div className="col-span-12 lg:col-span-7">
-            <span className={`${KICKER} text-accent`}>Editorial Desk</span>
+            <span className={`${KICKER} text-accent`}>Редакція</span>
             <h1 className="mt-4 font-display font-normal text-[2.75rem] lg:text-[4rem] leading-[1.0] tracking-[-0.025em]">
-              Publish Editorial
+              Опублікувати
             </h1>
           </div>
 
           <div className="col-span-12 lg:col-span-4 lg:col-start-9 mt-6 lg:mt-0 lg:pb-2 flex items-end justify-between gap-6">
-            <span className={`${KICKER} text-ink-soft`}>Draft saved locally</span>
+            <span className={`${KICKER} text-ink-soft`}>Чернетку збережено локально</span>
             <button
               onClick={() => navigate("/")}
               className={`${KICKER} text-ink-soft hover:text-accent transition-colors shrink-0`}
             >
-              Cancel
+              Скасувати
             </button>
           </div>
         </div>
@@ -139,13 +139,13 @@ const AddArticle = () => {
               htmlFor="title"
               className={`block ${KICKER} text-ink-soft mb-2`}
             >
-              Article Title
+              Заголовок
             </label>
             <input
               id="title"
               type="text"
               value={title}
-              placeholder="Enter a captivating title…"
+              placeholder="Введіть влучний заголовок…"
               onChange={(e) => setTitle(e.target.value)}
               className={`${FIELD} font-display text-[1.75rem] lg:text-[2.5rem] leading-[1.1] tracking-[-0.02em]`}
             />
@@ -156,13 +156,13 @@ const AddArticle = () => {
               htmlFor="theme"
               className={`block ${KICKER} text-ink-soft mb-2`}
             >
-              Theme / Section
+              Тема / Розділ
             </label>
             <input
               id="theme"
               type="text"
               value={theme}
-              placeholder="Design, Health…"
+              placeholder="Дизайн, Здоровʼя…"
               onChange={(e) => setTheme(e.target.value)}
               className={`${FIELD} font-serif text-[1.0625rem]`}
             />
@@ -173,13 +173,13 @@ const AddArticle = () => {
               htmlFor="synopsis"
               className={`block ${KICKER} text-ink-soft mb-2`}
             >
-              Standfirst
+              Анонс
             </label>
             <input
               id="synopsis"
               type="text"
               value={synopsis}
-              placeholder="One sentence to set up the piece…"
+              placeholder="Одне речення, щоб представити матеріал…"
               onChange={(e) => setSynopsis(e.target.value)}
               className={`${FIELD} font-serif text-[1.0625rem]`}
             />
@@ -188,7 +188,7 @@ const AddArticle = () => {
           {/* Cover — a hairline plate slot, not a dropzone card */}
           <div className="col-span-12 lg:col-span-4">
             <span className={`block ${KICKER} text-ink-soft mb-2`}>
-              Cover Image
+              Обкладинка
             </span>
             <label className="group flex items-center justify-between gap-4 w-full border-b border-rule py-3 cursor-pointer hover:border-accent transition-colors duration-300">
               <span
@@ -219,7 +219,7 @@ const AddArticle = () => {
 
           <div className="col-span-12">
             <label className={`block ${KICKER} text-ink-soft mb-3`}>
-              Article Body
+              Текст статті
             </label>
             <div className="border border-rule bg-paper min-h-[400px]">
               <Editor value={content} onChange={setContent} />

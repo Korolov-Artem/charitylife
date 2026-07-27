@@ -26,7 +26,7 @@ const RegisterForm = () => {
     setFormError(null);
 
     if (!name || !email || !password) {
-      setFormError("Please fill out all fields.");
+      setFormError("Заповніть усі поля.");
       return;
     }
 
@@ -39,14 +39,14 @@ const RegisterForm = () => {
           navigate("/login");
         }, 4000);
       } else {
-        setFormError("Registration successful, but no confirmation received.");
+        setFormError("Реєстрація пройшла, але підтвердження не надійшло.");
       }
     } catch (error: any) {
       console.log("Failed to register: ", error);
       if (error.data && error.data.error) {
         setFormError(error.data.error);
       } else {
-        setFormError("An unexpected error occurred. Please try again later.");
+        setFormError("Сталася непередбачувана помилка. Спробуйте пізніше.");
       }
     }
   };
@@ -54,8 +54,8 @@ const RegisterForm = () => {
   if (isSuccess) {
     return (
       <AuthShell
-        kicker="Confirm your address"
-        title="Check your inbox"
+        kicker="Підтвердіть адресу"
+        title="Перевірте пошту"
         standfirst={`We've sent a confirmation link to ${email}.`}
       >
         <div className="flex items-center gap-4">
@@ -63,16 +63,16 @@ const RegisterForm = () => {
             aria-hidden
             className="w-4 h-4 border border-rule border-t-accent rounded-full animate-spin"
           />
-          <span className={`${KICKER} text-ink-soft`}>Redirecting to sign in…</span>
+          <span className={`${KICKER} text-ink-soft`}>Перенаправляємо до входу…</span>
         </div>
 
         <AuthNote>
-          Nothing arrived? Check your spam folder, or{" "}
+          Нічого не надійшло? Перевірте теку спаму або{" "}
           <Link
             to="/login"
             className="text-ink hover:text-accent transition-colors underline decoration-1 underline-offset-4"
           >
-            sign in
+            увійдіть
           </Link>
           .
         </AuthNote>
@@ -82,24 +82,24 @@ const RegisterForm = () => {
 
   return (
     <AuthShell
-      kicker="Account"
-      title="Join the archive"
-      standfirst="Create an account to follow the publication."
+      kicker="Обліковий запис"
+      title="Приєднуйтеся до архіву"
+      standfirst="Створіть обліковий запис, щоб стежити за виданням."
     >
       <form onSubmit={handleSubmit} className="space-y-8">
         <Field
           id="name"
-          label="Full Name"
+          label="Повне імʼя"
           value={name}
           onChange={setName}
-          placeholder="Joshua Jenkins"
+          placeholder="Олена Ковальчук"
           autoComplete="name"
           required
         />
 
         <Field
           id="email"
-          label="Email Address"
+          label="Електронна пошта"
           type="email"
           value={email}
           onChange={setEmail}
@@ -110,7 +110,7 @@ const RegisterForm = () => {
 
         <PasswordField
           id="password"
-          label="Password"
+          label="Пароль"
           value={password}
           onChange={setPassword}
           autoComplete="new-password"
@@ -121,18 +121,18 @@ const RegisterForm = () => {
 
         <SubmitButton
           isLoading={isLoading}
-          idle="Create Account"
-          busy="Creating account…"
+          idle="Створити акаунт"
+          busy="Створення акаунта…"
         />
       </form>
 
       <AuthNote>
-        Already registered?{" "}
+        Вже зареєстровані?{" "}
         <Link
           to="/login"
           className="text-ink hover:text-accent transition-colors underline decoration-1 underline-offset-4"
         >
-          Log In
+          Увійти
         </Link>
       </AuthNote>
     </AuthShell>

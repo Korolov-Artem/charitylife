@@ -64,14 +64,14 @@ const Article = () => {
         ref={topRef}
         className="h-screen flex items-center justify-center font-bold uppercase tracking-widest text-xs"
       >
-        Loading Article...
+        Завантаження статті…
       </div>
     );
 
   if (isError || !article)
     return (
       <div className="h-screen flex items-center justify-center">
-        Error loading article.
+        Помилка завантаження статті.
       </div>
     );
 
@@ -91,7 +91,7 @@ const Article = () => {
       >
         <div className="flex flex-col">
           <span className="text-[10px] uppercase tracking-widest text-gray-400 mb-1">
-            Written by
+            Автор
           </span>
           <p className="text-sm font-bold uppercase tracking-tight">
             {article.author}
@@ -131,7 +131,7 @@ const Article = () => {
         className="max-w-3xl mx-auto text-center mb-16 px-6 lg:px-0"
       >
         <p className="text-[10px] uppercase tracking-[0.3em] text-gray-400">
-          Photography by Editorial Archive / Image Credits
+          Фото: архів редакції
         </p>
       </motion.div>
 

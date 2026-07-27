@@ -53,7 +53,7 @@ const MediaCarousel = () => {
   if (isLoading) {
     return (
       <div className="h-[400px] flex items-center justify-center font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink-soft animate-pulse">
-        Loading Highlights
+        Завантаження
       </div>
     );
   }

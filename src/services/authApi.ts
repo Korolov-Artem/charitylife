@@ -1,5 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { axiosBaseQuery } from "./axiosBaseQuery.ts";
+import { API_URL } from "../config.ts";
 
 type LoginResponse = {
   accessToken: string;
@@ -10,7 +11,7 @@ type LoginResponse = {
 
 export const authApi = createApi({
   reducerPath: "authApi",
-  baseQuery: axiosBaseQuery({ baseUrl: "http://localhost:3000/auth/" }),
+  baseQuery: axiosBaseQuery({ baseUrl: `${API_URL}/auth/` }),
   tagTypes: ["User"],
   endpoints: (builder) => ({
     login: builder.mutation<LoginResponse, any>({

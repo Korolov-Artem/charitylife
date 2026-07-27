@@ -67,7 +67,7 @@ const GlobalSensoryUX = () => {
         >
           {cursorState === "read" && (
             <span className="text-[10px] font-bold text-black uppercase tracking-widest">
-              Read
+              Читати
             </span>
           )}
         </motion.div>

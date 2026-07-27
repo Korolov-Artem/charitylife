@@ -1,3 +1,5 @@
+import { API_URL } from "../config.ts";
+
 export const getImageUrl = (path: string | undefined) => {
   if (!path) {
     return "";
@@ -21,7 +23,7 @@ export const getImageUrl = (path: string | undefined) => {
   const normalizedPath = cleanPath.startsWith("/")
     ? cleanPath
     : `/${cleanPath}`;
-  const finalUrl = `http://localhost:3000${normalizedPath}`;
+  const finalUrl = `${API_URL}${normalizedPath}`;
 
   return finalUrl;
 };

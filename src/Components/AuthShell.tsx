@@ -132,7 +132,7 @@ export const PasswordField = ({
           onClick={() => setShow(!show)}
           className={`absolute right-0 top-1/2 -translate-y-1/2 ${KICKER} text-ink-soft hover:text-accent transition-colors`}
         >
-          {show ? "Hide" : "Show"}
+          {show ? "Сховати" : "Показати"}
         </button>
       </div>
     </div>

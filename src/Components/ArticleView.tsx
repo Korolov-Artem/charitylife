@@ -154,7 +154,7 @@ const ArticleView = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-paper flex items-center justify-center font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink-soft">
-        Retrieving Editorial
+        Завантаження матеріалу
       </div>
     );
   }
@@ -213,7 +213,7 @@ const ArticleView = () => {
           <div className="mt-10 md:mt-0 flex items-center justify-between text-ink-soft">
             <Kicker>{formatDate(article.dataPublished)}</Kicker>
             <span aria-hidden className="hidden md:inline-block font-sans text-[10px] tracking-[0.24em] uppercase">
-              Scroll ↓
+              Гортайте ↓
             </span>
           </div>
         </div>
@@ -305,7 +305,7 @@ const ArticleView = () => {
         <section className="grid grid-cols-12 gap-x-6 lg:gap-x-10 pt-14 lg:pt-20">
           <div className="col-span-12 md:col-span-10 md:col-start-2 lg:col-span-6 lg:col-start-4">
             <span aria-hidden className="inline-block w-[0.7em] h-[0.7em] bg-accent align-middle" />
-            <span className="sr-only">End of article</span>
+            <span className="sr-only">Кінець статті</span>
           </div>
         </section>
       </main>

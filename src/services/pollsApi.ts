@@ -1,9 +1,10 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { axiosBaseQuery } from "./axiosBaseQuery.ts";
+import { API_URL } from "../config.ts";
 
 export const pollsApi = createApi({
   reducerPath: "pollsApi",
-  baseQuery: axiosBaseQuery({ baseUrl: "http://localhost:3000/polls" }),
+  baseQuery: axiosBaseQuery({ baseUrl: `${API_URL}/polls` }),
   tagTypes: ["Poll"],
   endpoints: (builder) => ({
     getActivePoll: builder.query({

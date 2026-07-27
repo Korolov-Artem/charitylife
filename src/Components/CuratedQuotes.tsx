@@ -96,7 +96,7 @@ const CuratedQuotes = () => {
     // that has to be square is the block itself, which `mx-auto` centres.
     <section className={`${GUTTER} pt-20 lg:pt-28 overflow-hidden`}>
       <div className="flex items-center gap-4 pb-12 lg:pb-16">
-        <span className={`${KICKER} text-ink-soft`}>Voices from the Archive</span>
+        <span className={`${KICKER} text-ink-soft`}>Голоси з архіву</span>
         <span aria-hidden className="flex-1 h-px bg-rule" />
       </div>
 

@@ -1,6 +1,7 @@
 import { useGetArticlesQuery } from "../services/articlesApi.ts";
 import { getImageUrl } from "./getImageUrl.ts";
 import { useNavigate } from "react-router-dom";
+import { plural } from "../plural.ts";
 import { motion } from "framer-motion";
 import { ArticleType } from "../types/ArticleType.ts";
 import { useMemo } from "react";
@@ -92,7 +93,7 @@ const VisualIndex = () => {
     return (
       <div className={`${GUTTER} min-h-screen bg-paper pt-24`}>
         <span className={`${KICKER} text-ink-soft animate-pulse`}>
-          Curating archive
+          Формуємо архів
         </span>
       </div>
     );
@@ -101,7 +102,7 @@ const VisualIndex = () => {
   if (isError || !articles) {
     return (
       <div className={`${GUTTER} min-h-screen bg-paper pt-24`}>
-        <span className={`${KICKER} text-ink-soft`}>Error loading archive</span>
+        <span className={`${KICKER} text-ink-soft`}>Помилка завантаження архіву</span>
       </div>
     );
   }
@@ -116,20 +117,19 @@ const VisualIndex = () => {
       >
         <div className={`${GRID} items-end`}>
           <div className="col-span-12 lg:col-span-7">
-            <span className={`${KICKER} text-accent`}>Visual Archive</span>
+            <span className={`${KICKER} text-accent`}>Візуальний архів</span>
             <h1 className="mt-5 font-display font-normal leading-[0.92] tracking-[-0.025em] text-[clamp(3rem,9vw,5rem)] lg:text-[clamp(4.5rem,7vw,8rem)]">
-              Visual Index
+              Візуальний покажчик
             </h1>
           </div>
 
           <div className="col-span-12 lg:col-span-4 lg:col-start-9 mt-8 lg:mt-0 lg:pb-3">
             <p className="font-serif text-[1.0625rem] lg:text-[1.125rem] leading-[1.6] text-ink-soft text-pretty max-w-[38ch]">
-              Every image the archive holds, drawn from covers and from inside
-              the stories themselves.
+              Усі зображення архіву — з обкладинок і зсередини матеріалів.
             </p>
             <div className="mt-6 pt-4 border-t border-rule">
               <span className={`${KICKER} text-ink-soft tabular-nums`}>
-                {allMedia.length} {allMedia.length === 1 ? "Plate" : "Plates"}
+                {allMedia.length} {plural(allMedia.length, "зображення", "зображення", "зображень")}
               </span>
             </div>
           </div>
@@ -170,7 +170,7 @@ const VisualIndex = () => {
                     Fig. {String(index + 1).padStart(2, "0")}
                   </span>
                   <span className={`${KICKER} text-accent truncate`}>
-                    {media.theme || "Editorial"}
+                    {media.theme || "Редакція"}
                   </span>
                 </div>
                 <p className="mt-1.5 font-serif text-[0.9375rem] leading-[1.4] text-ink-soft line-clamp-1 group-hover:text-accent transition-colors duration-300">

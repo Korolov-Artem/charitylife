@@ -30,7 +30,7 @@ const ActivePoll = () => {
   if (isLoading) {
     return (
       <div className="w-full py-16 font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink-soft animate-pulse">
-        Loading Community Poll
+        Завантаження опитування
       </div>
     );
   }
@@ -73,7 +73,7 @@ const ActivePoll = () => {
     >
       <header className="mb-10">
         <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-accent">
-          Community Poll
+          Опитування
         </span>
         <h3 className="mt-4 font-display text-[1.75rem] lg:text-[2.25rem] font-normal text-ink leading-[1.1] tracking-[-0.015em] text-balance max-w-[26ch]">
           {poll.question}
@@ -115,7 +115,7 @@ const ActivePoll = () => {
                     {opt.text}
                     {isSelected && (
                       <span className="ml-2 font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-accent">
-                        Your vote
+                        Ваш голос
                       </span>
                     )}
                   </span>
@@ -184,7 +184,7 @@ const ActivePoll = () => {
           <>
             <span aria-hidden className="w-5 h-px bg-rule" />
             <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink-soft">
-              Select to see results
+              Оберіть, щоб побачити результати
             </span>
           </>
         )}

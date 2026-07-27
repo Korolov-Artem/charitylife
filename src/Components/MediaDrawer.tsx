@@ -33,7 +33,7 @@ const MediaDrawer: React.FC<MediaDrawerProps> = ({ isOpen, onClose, onSelectImag
           >
             <div className="sticky top-0 bg-[#fafafa] z-10 px-6 py-5 border-b border-black/10 flex justify-between items-center">
               <span className="text-sm font-bold uppercase tracking-[0.1em] text-black">
-                Media Archive
+                Медіаархів
               </span>
               <button
                 onClick={onClose}
@@ -46,13 +46,13 @@ const MediaDrawer: React.FC<MediaDrawerProps> = ({ isOpen, onClose, onSelectImag
             <div className="p-6">
               {isLoading && (
                 <div className="text-xs font-bold uppercase tracking-widest text-gray-400 text-center mt-10">
-                  Loading Archive...
+                  Завантаження архіву…
                 </div>
               )}
 
               {isError && (
                 <div className="text-xs font-bold uppercase tracking-widest text-[#BD3900] text-center mt-10">
-                  Failed to load media.
+                  Не вдалося завантажити медіа.
                 </div>
               )}
 
@@ -74,7 +74,7 @@ const MediaDrawer: React.FC<MediaDrawerProps> = ({ isOpen, onClose, onSelectImag
 
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                       <span className="text-white text-[10px] font-bold uppercase tracking-widest text-center">
-                        Insert
+                        Вставити
                       </span>
                     </div>
                   </div>

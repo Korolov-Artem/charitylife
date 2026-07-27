@@ -32,7 +32,7 @@ const ResetPassword = () => {
     setFormError(null);
 
     if (password.length < 8) {
-      setFormError("Password must be at least 8 characters long.");
+      setFormError("Пароль має містити щонайменше 8 символів.");
       return;
     }
 
@@ -44,10 +44,10 @@ const ResetPassword = () => {
         setFormError(
           typeof error.data === "string"
             ? error.data
-            : "Failed to reset password.",
+            : "Не вдалося змінити пароль.",
         );
       } else {
-        setFormError("An unexpected error occurred. Please try again.");
+        setFormError("Сталася непередбачувана помилка. Спробуйте ще раз.");
       }
     }
   };
@@ -55,15 +55,15 @@ const ResetPassword = () => {
   if (!token || isTokenInvalid) {
     return (
       <AuthShell
-        kicker="Account recovery"
-        title="This link has expired"
-        standfirst="Reset links are single-use and time-limited. Request a fresh one and we'll send it straight over."
+        kicker="Відновлення доступу"
+        title="Посилання застаріло"
+        standfirst="Посилання одноразові й діють обмежений час. Надішлемо нове одразу після запиту."
       >
         <Link
           to="/forgot-password"
           className={`inline-block w-full text-center bg-ink text-paper py-4 ${KICKER} hover:bg-accent transition-colors duration-300`}
         >
-          Request New Link
+          Надіслати нове посилання
         </Link>
 
         <AuthNote>
@@ -80,13 +80,13 @@ const ResetPassword = () => {
 
   if (isVerifying) {
     return (
-      <AuthShell kicker="Account recovery" title="Verifying your link">
+      <AuthShell kicker="Відновлення доступу" title="Перевіряємо посилання">
         <div className="flex items-center gap-4">
           <span
             aria-hidden
             className="w-4 h-4 border border-rule border-t-accent rounded-full animate-spin"
           />
-          <span className={`${KICKER} text-ink-soft`}>One moment…</span>
+          <span className={`${KICKER} text-ink-soft`}>Хвилинку…</span>
         </div>
       </AuthShell>
     );
@@ -95,15 +95,15 @@ const ResetPassword = () => {
   if (isSuccess) {
     return (
       <AuthShell
-        kicker="Account recovery"
-        title="Password updated"
-        standfirst="Your new password is active. You can sign in with it now."
+        kicker="Відновлення доступу"
+        title="Пароль оновлено"
+        standfirst="Новий пароль уже діє. Тепер ви можете увійти з ним."
       >
         <Link
           to="/login"
           className={`inline-block w-full text-center bg-ink text-paper py-4 ${KICKER} hover:bg-accent transition-colors duration-300`}
         >
-          Log In Now
+          Увійти зараз
         </Link>
       </AuthShell>
     );
@@ -111,14 +111,14 @@ const ResetPassword = () => {
 
   return (
     <AuthShell
-      kicker="Account recovery"
-      title="Set a new password"
-      standfirst="Use at least eight characters."
+      kicker="Відновлення доступу"
+      title="Встановіть новий пароль"
+      standfirst="Щонайменше вісім символів."
     >
       <form onSubmit={handleSubmit} className="space-y-8">
         <PasswordField
           id="password"
-          label="New Password"
+          label="Новий пароль"
           value={password}
           onChange={setPassword}
           autoComplete="new-password"
@@ -129,8 +129,8 @@ const ResetPassword = () => {
 
         <SubmitButton
           isLoading={isResetting}
-          idle="Update Password"
-          busy="Saving…"
+          idle="Оновити пароль"
+          busy="Збереження…"
         />
       </form>
     </AuthShell>

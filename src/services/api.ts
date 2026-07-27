@@ -1,7 +1,8 @@
 import axios from "axios";
+import { API_URL } from "../config.ts";
 
 export const axiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_REACT_APP_API_URL || "http://localhost:3000",
+    baseURL: API_URL,
     timeout: 10000,
     headers: {
         "Content-Type": "application/json",

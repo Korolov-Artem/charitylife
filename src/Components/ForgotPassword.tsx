@@ -21,7 +21,7 @@ const ForgotPassword = () => {
     setFormError(null);
 
     if (!email) {
-      setFormError("Please enter a valid email address.");
+      setFormError("Введіть коректну електронну пошту.");
       return;
     }
 
@@ -34,24 +34,24 @@ const ForgotPassword = () => {
         setFormError(
           typeof error.data === "string"
             ? error.data
-            : "Failed to process request.",
+            : "Не вдалося обробити запит.",
         );
       } else {
-        setFormError("An unexpected error occurred. Please try again.");
+        setFormError("Сталася непередбачувана помилка. Спробуйте ще раз.");
       }
     }
   };
 
   if (isSubmitted) {
     return (
-      <AuthShell kicker="Account recovery" title="Check your inbox">
+      <AuthShell kicker="Відновлення доступу" title="Перевірте пошту">
         <p className="font-serif text-[1.0625rem] leading-[1.6] text-ink">
-          If an account exists for{" "}
+          Якщо акаунт для{" "}
           <span className="text-accent">{email}</span>, a reset link is on its
           way.
         </p>
         <p className="mt-4 font-serif text-[0.9375rem] leading-[1.55] text-ink-soft">
-          Check your spam folder if it hasn't arrived within a few minutes.
+          Перевірте теку спаму, якщо лист не надійшов за кілька хвилин.
         </p>
 
         <AuthNote>
@@ -68,14 +68,14 @@ const ForgotPassword = () => {
 
   return (
     <AuthShell
-      kicker="Account recovery"
-      title="Reset your password"
-      standfirst="Enter your email and we'll send a link to set a new one."
+      kicker="Відновлення доступу"
+      title="Скидання пароля"
+      standfirst="Введіть свою пошту — ми надішлемо посилання для встановлення нового."
     >
       <form onSubmit={handleSubmit} className="space-y-8">
         <Field
           id="email"
-          label="Email Address"
+          label="Електронна пошта"
           type="email"
           value={email}
           onChange={setEmail}
@@ -88,8 +88,8 @@ const ForgotPassword = () => {
 
         <SubmitButton
           isLoading={isLoading}
-          idle="Send Reset Link"
-          busy="Sending link…"
+          idle="Надіслати посилання"
+          busy="Надсилання…"
         />
       </form>
 
@@ -98,7 +98,7 @@ const ForgotPassword = () => {
           to="/login"
           className="text-ink-soft hover:text-accent transition-colors"
         >
-          Cancel
+          Скасувати
         </Link>
       </AuthNote>
     </AuthShell>

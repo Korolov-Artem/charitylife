@@ -51,7 +51,7 @@ const NewArticle = () => {
   if (isError) {
     return (
       <div className="p-4 font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink-soft">
-        Error loading articles
+        Помилка завантаження
       </div>
     );
   }
@@ -59,7 +59,7 @@ const NewArticle = () => {
   if (!articles || articles.length === 0) {
     return (
       <p className="py-10 font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink-soft">
-        No articles found
+        Матеріалів не знайдено
       </p>
     );
   }
@@ -120,7 +120,7 @@ const NewArticle = () => {
           ) : (
             <div className="absolute inset-0 w-full h-full bg-[#eceae6] flex items-center justify-center">
               <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink-soft">
-                No Image
+                Без зображення
               </span>
             </div>
           )}

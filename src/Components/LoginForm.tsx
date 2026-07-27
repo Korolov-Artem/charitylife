@@ -29,24 +29,24 @@ const LoginForm = () => {
     } catch (error: any) {
       if (error.data) {
         setFormError(
-          typeof error.data === "string" ? error.data : "Invalid credentials.",
+          typeof error.data === "string" ? error.data : "Невірна пошта або пароль.",
         );
       } else {
-        setFormError("An unexpected error occurred. Please try again.");
+        setFormError("Сталася непередбачувана помилка. Спробуйте ще раз.");
       }
     }
   };
 
   return (
     <AuthShell
-      kicker="Account"
-      title="Welcome back"
-      standfirst="Sign in to continue reading and voting."
+      kicker="Обліковий запис"
+      title="З поверненням"
+      standfirst="Увійдіть, щоб читати далі та голосувати."
     >
       <form onSubmit={handleSubmit} className="space-y-8">
         <Field
           id="email"
-          label="Email Address"
+          label="Електронна пошта"
           type="email"
           value={email}
           onChange={setEmail}
@@ -57,7 +57,7 @@ const LoginForm = () => {
 
         <PasswordField
           id="password"
-          label="Password"
+          label="Пароль"
           value={password}
           onChange={setPassword}
           autoComplete="current-password"
@@ -67,23 +67,23 @@ const LoginForm = () => {
               to="/forgot-password"
               className={`${KICKER} text-accent hover:text-ink transition-colors`}
             >
-              Forgot?
+              Забули?
             </Link>
           }
         />
 
         <FormError>{formError}</FormError>
 
-        <SubmitButton isLoading={isLoading} idle="Sign In" busy="Signing in…" />
+        <SubmitButton isLoading={isLoading} idle="Увійти" busy="Вхід…" />
       </form>
 
       <AuthNote>
-        No account yet?{" "}
+        Ще не маєте акаунта?{" "}
         <Link
           to="/register"
           className="text-ink hover:text-accent transition-colors underline decoration-1 underline-offset-4"
         >
-          Register
+          Зареєструватися
         </Link>
       </AuthNote>
     </AuthShell>

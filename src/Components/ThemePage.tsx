@@ -107,7 +107,7 @@ const ThemePage = () => {
   if (isLoading) {
     return (
       <div className={`${GUTTER} py-32`}>
-        <Kicker className="text-ink-soft animate-pulse">Curating archive</Kicker>
+        <Kicker className="text-ink-soft animate-pulse">Формуємо добірку</Kicker>
       </div>
     );
   }
@@ -124,7 +124,7 @@ const ThemePage = () => {
       >
         <div className={`${GRID} items-end`}>
           <div className="col-span-12 lg:col-span-7">
-            <Kicker className="text-accent">Section</Kicker>
+            <Kicker className="text-accent">Розділ</Kicker>
             <h1 className="mt-5 font-display font-normal capitalize leading-[0.92] tracking-[-0.025em] text-[clamp(3rem,9vw,5rem)] lg:text-[clamp(4.5rem,7vw,8rem)]">
               {displayTheme}
             </h1>
@@ -146,7 +146,7 @@ const ThemePage = () => {
       {filtered.length === 0 ? (
         <div className={`${GUTTER} py-32 border-b border-rule`}>
           <p className="font-serif italic text-[1.5rem] text-ink-soft max-w-[34ch]">
-            Nothing has been filed under this section yet.
+            У цьому розділі ще нічого немає.
           </p>
         </div>
       ) : (
@@ -172,7 +172,7 @@ const ThemePage = () => {
               <div className={`${GUTTER} py-10 lg:py-14`}>
                 <div className={GRID}>
                   <div className="col-span-12 lg:col-span-6 lg:col-start-2">
-                    <Kicker className="text-accent">The Lead</Kicker>
+                    <Kicker className="text-accent">Головне</Kicker>
                     <h2 className="mt-4 font-display font-normal leading-[1.02] tracking-[-0.02em] text-[clamp(2rem,5vw,2.75rem)] lg:text-[clamp(2.5rem,3.4vw,3.75rem)] text-balance group-hover:text-accent transition-colors duration-500">
                       {lead.title}
                     </h2>
@@ -297,7 +297,7 @@ const Row = ({ kind, items, index, go }: RowProps) => {
       <motion.section {...fade} className={`${GUTTER} py-14 lg:py-20 border-b border-rule`}>
         <div className={GRID}>
           <div className="col-span-12 lg:col-span-8 lg:col-start-3">
-            <Kicker className="text-ink-soft pb-5 block border-b border-rule">Also in this section</Kicker>
+            <Kicker className="text-ink-soft pb-5 block border-b border-rule">Також у цьому розділі</Kicker>
             <ul>
               {items.map((a, i) => (
                 <li key={a.id}>

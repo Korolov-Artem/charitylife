@@ -3,6 +3,7 @@ import { useGetArticlesQuery } from "../services/articlesApi.ts";
 import { ArticleType } from "../types/ArticleType.ts";
 import { useIntersectionObserver } from "../hooks/useIntersectionObserver.ts";
 import { useNavigate } from "react-router-dom";
+import { plural } from "../plural.ts";
 import { getImageUrl } from "./getImageUrl.ts";
 import EditorialImage from "./EditorialImage.tsx";
 import { motion, AnimatePresence } from "framer-motion";
@@ -60,19 +61,19 @@ const AllArticles = () => {
       >
         <div className={`${GRID} items-end`}>
           <div className="col-span-12 lg:col-span-7">
-            <span className={`${KICKER} text-accent`}>Editorials</span>
+            <span className={`${KICKER} text-accent`}>Публікації</span>
             <h1 className="mt-5 font-display font-normal leading-[0.92] tracking-[-0.025em] text-[clamp(3rem,9vw,5rem)] lg:text-[clamp(4.5rem,7vw,8rem)]">
-              The Journal
+              Журнал
             </h1>
           </div>
 
           <div className="col-span-12 lg:col-span-4 lg:col-start-9 mt-8 lg:mt-0 lg:pb-3">
             <p className="font-serif text-[1.0625rem] lg:text-[1.125rem] leading-[1.6] text-ink-soft text-pretty max-w-[38ch]">
-              Every piece in the archive, newest first.
+              Усі матеріали архіву, найновіші спершу.
             </p>
             <div className="mt-6 pt-4 border-t border-rule">
               <span className={`${KICKER} text-ink-soft tabular-nums`}>
-                {articles.length} {articles.length === 1 ? "Piece" : "Pieces"}
+                {articles.length} {plural(articles.length, "матеріал", "матеріали", "матеріалів")}
               </span>
             </div>
           </div>
@@ -101,7 +102,7 @@ const AllArticles = () => {
                   {formatDate(article.dataPublished)}
                 </span>
                 <span className={`${KICKER} text-accent truncate`}>
-                  {article.theme || "Editorial"}
+                  {article.theme || "Редакція"}
                 </span>
               </div>
 
@@ -135,13 +136,13 @@ const AllArticles = () => {
       <div ref={targetRef} className={`${GUTTER} h-32 flex items-center pt-8`}>
         {isFetching && (
           <span className={`${KICKER} text-ink-soft animate-pulse`}>
-            Loading ledger
+            Завантаження
           </span>
         )}
         {!hasMore && articles.length > 0 && (
           <div className="flex items-center gap-4 w-full">
             <span aria-hidden className="w-8 h-[3px] bg-accent" />
-            <span className={`${KICKER} text-ink-soft`}>End of Journal</span>
+            <span className={`${KICKER} text-ink-soft`}>Кінець журналу</span>
           </div>
         )}
       </div>
