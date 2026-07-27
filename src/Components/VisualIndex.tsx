@@ -5,14 +5,14 @@ import { motion } from "framer-motion";
 import { ArticleType } from "../types/ArticleType.ts";
 import { useMemo } from "react";
 import Masonry from "react-masonry-css";
+import EditorialImage from "./EditorialImage.tsx";
 
 const extractImagesFromHTML = (htmlContent: string) => {
   if (!htmlContent) return [];
   try {
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlContent, "text/html");
-    const images = Array.from(doc.querySelectorAll("img"));
-    return images
+    return Array.from(doc.querySelectorAll("img"))
       .map((img) => img.getAttribute("src"))
       .filter(Boolean) as string[];
   } catch (error) {
@@ -30,11 +30,22 @@ const shuffleArray = <T,>(array: T[]): T[] => {
   return shuffled;
 };
 
-// 3. Define our responsive breakpoints for the Masonry grid
 const breakpointColumnsObj = {
-  default: 3, // Massive 4K screens get a max of 3 columns (Huge images!)
-  1024: 2, // Standard laptops and tablets get 2 columns
-  768: 1, // Mobile phones stay at 1 column
+  default: 3,
+  1024: 2,
+  768: 1,
+};
+
+const GUTTER = "mx-auto w-full max-w-[1680px] px-6 sm:px-10 lg:px-16";
+const GRID = "grid grid-cols-12 gap-x-6 lg:gap-x-10";
+const KICKER = "font-sans text-[10px] font-semibold uppercase tracking-[0.24em]";
+
+type MediaItem = {
+  id: string;
+  articleId: string;
+  src: string;
+  title: string;
+  theme: string;
 };
 
 const VisualIndex = () => {
@@ -46,12 +57,11 @@ const VisualIndex = () => {
     isError,
   } = useGetArticlesQuery({ pgSize: 50 });
 
-  // 4. Extract and Shuffle Media (Wrapped in useMemo so it only shuffles once per load)
-  const allMedia = useMemo(() => {
+  const allMedia = useMemo<MediaItem[]>(() => {
     if (!articles) return [];
 
     const mediaItems = articles.flatMap((article: ArticleType) => {
-      const items = [];
+      const items: MediaItem[] = [];
       if (article.image) {
         items.push({
           id: `${article.id}-cover`,
@@ -62,12 +72,12 @@ const VisualIndex = () => {
         });
       }
 
-      const embeddedImages = extractImagesFromHTML(article.content);
-      embeddedImages.forEach((imgSrc, index) => {
+      extractImagesFromHTML(article.content).forEach((imgSrc, index) => {
         items.push({
           id: `${article.id}-embed-${index}`,
           articleId: article.id,
-          src: imgSrc.startsWith("http") ? imgSrc : getImageUrl(imgSrc),
+          // getImageUrl passes http/data/blob sources straight through.
+          src: getImageUrl(imgSrc),
           title: article.title,
           theme: article.theme,
         });
@@ -80,78 +90,94 @@ const VisualIndex = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center text-xs font-bold uppercase tracking-widest text-gray-400">
-        Curating Archive...
+      <div className={`${GUTTER} min-h-screen bg-paper pt-24`}>
+        <span className={`${KICKER} text-ink-soft animate-pulse`}>
+          Curating archive
+        </span>
       </div>
     );
   }
 
   if (isError || !articles) {
     return (
-      <div className="min-h-screen bg-[#fafafa] flex items-center justify-center">
-        Error loading archive.
+      <div className={`${GUTTER} min-h-screen bg-paper pt-24`}>
+        <span className={`${KICKER} text-ink-soft`}>Error loading archive</span>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#fafafa] pt-24 pb-20 px-6 lg:px-12 font-sans">
-      {/* --- HEADER --- */}
-      <div className="max-w-[1600px] mx-auto mb-16 border-b border-black/10 pb-8">
-        <h1 className="text-5xl lg:text-7xl font-serif text-black tracking-tight mb-4">
-          Visual Index
-        </h1>
-        <p className="text-sm font-bold uppercase tracking-widest text-gray-500">
-          An exploration of imagery from the Archive.
-        </p>
-      </div>
+    <div className="bg-paper text-ink min-h-screen pb-24">
+      <motion.header
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className={`${GUTTER} pt-14 lg:pt-20 pb-8 lg:pb-12 border-b border-rule`}
+      >
+        <div className={`${GRID} items-end`}>
+          <div className="col-span-12 lg:col-span-7">
+            <span className={`${KICKER} text-accent`}>Visual Archive</span>
+            <h1 className="mt-5 font-display font-normal leading-[0.92] tracking-[-0.025em] text-[clamp(3rem,9vw,5rem)] lg:text-[clamp(4.5rem,7vw,8rem)]">
+              Visual Index
+            </h1>
+          </div>
 
-      {/* --- MASONRY GRID --- */}
-      <div className="max-w-[1600px] mx-auto">
+          <div className="col-span-12 lg:col-span-4 lg:col-start-9 mt-8 lg:mt-0 lg:pb-3">
+            <p className="font-serif text-[1.0625rem] lg:text-[1.125rem] leading-[1.6] text-ink-soft text-pretty max-w-[38ch]">
+              Every image the archive holds, drawn from covers and from inside
+              the stories themselves.
+            </p>
+            <div className="mt-6 pt-4 border-t border-rule">
+              <span className={`${KICKER} text-ink-soft tabular-nums`}>
+                {allMedia.length} {allMedia.length === 1 ? "Plate" : "Plates"}
+              </span>
+            </div>
+          </div>
+        </div>
+      </motion.header>
+
+      {/* Captions hang beneath the plate, catalogue-style. No hover wash — it
+          covers the one thing the page exists to show. */}
+      <div className={`${GUTTER} pt-12 lg:pt-16`}>
         <Masonry
           breakpointCols={breakpointColumnsObj}
-          className="flex w-auto gap-6" // Tailwind handles the horizontal gap
-          columnClassName="bg-clip-padding flex flex-col gap-6" // Tailwind handles the vertical gap
+          className="flex w-auto gap-6 lg:gap-10"
+          columnClassName="bg-clip-padding flex flex-col gap-12 lg:gap-16"
         >
           {allMedia.map((media, index) => (
-            <motion.div
+            <motion.figure
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              // Adjusted stagger so they load in much faster
-              transition={{
-                delay: index * 0.02,
-                duration: 0.5,
-                ease: "easeOut",
-              }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-60px" }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
               key={media.id}
-              className="relative group cursor-pointer overflow-hidden bg-zinc-100"
+              className="group cursor-pointer"
               onClick={() => navigate(`/${media.articleId}`)}
+              data-cursor="read"
             >
-              <img
-                src={media.src}
-                alt={media.title}
-                loading="lazy"
-                // w-full with h-auto ensures Pinterest-style variable heights!
-                className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
-              />
+              <div className="overflow-hidden">
+                <EditorialImage
+                  src={media.src}
+                  alt={media.title}
+                  loading="lazy"
+                  imgClassName="transition-transform duration-[1.6s] ease-out group-hover:scale-[1.04]"
+                />
+              </div>
 
-              {/* The Interactive Overlay */}
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-[#BD3900] mb-2">
-                  {media.theme || "Editorial"}
-                </span>
-                <h3 className="text-white font-serif text-xl leading-tight line-clamp-3">
-                  {media.title}
-                </h3>
-
-                <div className="mt-4 flex items-center text-white/70 text-xs font-bold uppercase tracking-widest">
-                  <span>Read Story</span>
-                  <span className="ml-2 group-hover:translate-x-1 transition-transform duration-300">
-                    ➔
+              <figcaption className="mt-3 pt-3 border-t border-rule">
+                <div className="flex items-baseline gap-3">
+                  <span className={`${KICKER} text-ink-soft tabular-nums shrink-0`}>
+                    Fig. {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <span className={`${KICKER} text-accent truncate`}>
+                    {media.theme || "Editorial"}
                   </span>
                 </div>
-              </div>
-            </motion.div>
+                <p className="mt-1.5 font-serif text-[0.9375rem] leading-[1.4] text-ink-soft line-clamp-1 group-hover:text-accent transition-colors duration-300">
+                  {media.title}
+                </p>
+              </figcaption>
+            </motion.figure>
           ))}
         </Masonry>
       </div>

@@ -1,16 +1,9 @@
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {authApi} from "../services/authApi.ts";
 
-// type User = {
-//     email: string,
-//     id: string,
-//     userName: string
-// }
-
 type AuthState = {
     accessToken: string | null
     deviceId: string | null
-    // user: User | null
     isAuthenticated: boolean
     role: "user" | "admin" | null
 }
@@ -18,7 +11,6 @@ type AuthState = {
 const initialState: AuthState = {
     accessToken: localStorage.getItem("authToken") || null,
     deviceId: localStorage.getItem("deviceId") || null,
-    // user: null,
     isAuthenticated: !!localStorage.getItem("authToken"),
     role: (localStorage.getItem("userRole") as "user" | "admin") || null
 }
@@ -34,7 +26,6 @@ const authSlice = createSlice({
         }>) => {
             state.accessToken = action.payload.accessToken;
             state.deviceId = action.payload.deviceId;
-            // state.user = action.payload.user || null
             state.isAuthenticated = true
             state.role = action.payload.role;
 
@@ -43,7 +34,6 @@ const authSlice = createSlice({
         },
         logout: (state) => {
             state.accessToken = null;
-            // state.user = null;
             state.isAuthenticated = false;
             state.role = null;
 
@@ -56,7 +46,6 @@ const authSlice = createSlice({
             (state, {payload}) => {
                 const {accessToken} = payload;
                 state.accessToken = accessToken;
-                // state.user = user;
                 state.isAuthenticated = true;
                 state.role = payload.role;
 

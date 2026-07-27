@@ -5,9 +5,8 @@ const Preloader = ({ onComplete }: { onComplete: () => void }) => {
   const [progress, setProgress] = useState(0);
   const [stage, setStage] = useState<"loading" | "revealing">("loading");
 
-  // 1. Faster counter logic
   useEffect(() => {
-    const duration = 1200; // SPED UP: Takes 1.2 seconds instead of 2
+    const duration = 1200;
     const intervalTime = 20;
     const steps = duration / intervalTime;
     let currentStep = 0;
@@ -19,12 +18,11 @@ const Preloader = ({ onComplete }: { onComplete: () => void }) => {
 
       if (currentStep >= steps) {
         clearInterval(interval);
-        // SPED UP: Only pause for 200ms at 100% before snapping open
+        // Let 100% register before the panels part.
         setTimeout(() => setStage("revealing"), 200);
       }
     }, intervalTime);
 
-    // Clean up the interval if the component unmounts early to prevent memory leaks
     return () => clearInterval(interval);
   }, []);
 
@@ -32,14 +30,13 @@ const Preloader = ({ onComplete }: { onComplete: () => void }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex pointer-events-none">
-      {/* ---------------- LEFT PANEL ---------------- */}
       <motion.div
         initial={{ x: 0 }}
         animate={{ x: stage === "revealing" ? "-100%" : 0 }}
-        transition={{ duration: 0.8, ease: premiumEase }} // SPED UP: 0.8s duration
+        transition={{ duration: 0.8, ease: premiumEase }}
         className="w-1/2 h-full bg-[#E5E5E5] relative"
-        // BUG FIX: This guarantees the loader won't get stuck.
-        // It tells the parent app to remove the loader the exact moment this panel finishes moving.
+        // Unmount is driven off the animation rather than a matching timeout,
+        // so the loader can't strand the app if the two ever drift apart.
         onAnimationComplete={() => {
           if (stage === "revealing") {
             onComplete();
@@ -47,18 +44,16 @@ const Preloader = ({ onComplete }: { onComplete: () => void }) => {
         }}
       />
 
-      {/* ---------------- RIGHT PANEL ---------------- */}
       <motion.div
         initial={{ x: 0 }}
         animate={{ x: stage === "revealing" ? "100%" : 0 }}
-        transition={{ duration: 0.8, ease: premiumEase }} // SPED UP: 0.8s duration
+        transition={{ duration: 0.8, ease: premiumEase }}
         className="w-1/2 h-full bg-[#E5E5E5] relative"
       />
 
-      {/* ---------------- CENTER CONTENT (Lines & Text) ---------------- */}
       <motion.div
         animate={{ opacity: stage === "revealing" ? 0 : 1 }}
-        transition={{ duration: 0.2 }} // SPED UP fade out
+        transition={{ duration: 0.2 }}
         className="absolute inset-0 flex flex-col items-center justify-center"
       >
         <motion.div

@@ -1,7 +1,13 @@
 import React, { useState } from "react";
-import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useRequestPasswordResetMutation } from "../services/authApi.ts";
+import {
+  AuthShell,
+  Field,
+  FormError,
+  SubmitButton,
+  AuthNote,
+} from "./AuthShell.tsx";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -25,102 +31,77 @@ const ForgotPassword = () => {
     } catch (error: any) {
       console.error("Reset request failed:", error);
       if (error.data) {
-        setFormError(typeof error.data === "string" ? error.data : "Failed to process request.");
+        setFormError(
+          typeof error.data === "string"
+            ? error.data
+            : "Failed to process request.",
+        );
       } else {
         setFormError("An unexpected error occurred. Please try again.");
       }
     }
   };
 
-  return (
-    <div className="min-h-screen bg-[#fafafa] flex flex-col justify-center items-center py-12 px-6 font-sans selection:bg-black selection:text-white relative">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.76, 0, 0.24, 1] }}
-        className="w-full max-w-md"
-      >
-        <div className="text-center mb-12">
-          <h2 className="mt-6 text-4xl lg:text-5xl font-serif text-black leading-tight tracking-tight">
-            Account Recovery
-          </h2>
-          <p className="mt-4 text-sm uppercase tracking-widest text-gray-500 font-bold">
-            Reset your password
-          </p>
-        </div>
+  if (isSubmitted) {
+    return (
+      <AuthShell kicker="Account recovery" title="Check your inbox">
+        <p className="font-serif text-[1.0625rem] leading-[1.6] text-ink">
+          If an account exists for{" "}
+          <span className="text-accent">{email}</span>, a reset link is on its
+          way.
+        </p>
+        <p className="mt-4 font-serif text-[0.9375rem] leading-[1.55] text-ink-soft">
+          Check your spam folder if it hasn't arrived within a few minutes.
+        </p>
 
-        {isSubmitted ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center space-y-6"
+        <AuthNote>
+          <Link
+            to="/login"
+            className="text-ink hover:text-accent transition-colors underline decoration-1 underline-offset-4"
           >
-            <div className="p-6 border border-black/10 bg-white shadow-sm">
-              <p className="text-lg font-serif leading-relaxed text-black">
-                If an account exists for <span className="font-bold text-[#BD3900]">{email}</span>, we have sent a password reset link to your inbox.
-              </p>
-              <p className="mt-4 text-[10px] uppercase tracking-[0.2em] text-gray-400">
-                Please check your spam folder if it doesn't arrive within a few minutes.
-              </p>
-            </div>
+            ← Return to sign in
+          </Link>
+        </AuthNote>
+      </AuthShell>
+    );
+  }
 
-            <Link
-              to="/login"
-              className="inline-block mt-8 text-xs font-bold uppercase tracking-[0.2em] text-black hover:text-[#BD3900] transition-colors underline decoration-1 underline-offset-4"
-            >
-              ← Return to Login
-            </Link>
-          </motion.div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-2"
-              >
-                Email Address
-              </label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                placeholder="your@example.com"
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full appearance-none border-b border-black/20 bg-transparent px-0 py-3 text-lg text-black placeholder-gray-300 focus:border-[#BD3900] focus:outline-none focus:ring-0 transition-colors"
-              />
-            </div>
+  return (
+    <AuthShell
+      kicker="Account recovery"
+      title="Reset your password"
+      standfirst="Enter your email and we'll send a link to set a new one."
+    >
+      <form onSubmit={handleSubmit} className="space-y-8">
+        <Field
+          id="email"
+          label="Email Address"
+          type="email"
+          value={email}
+          onChange={setEmail}
+          placeholder="your@example.com"
+          autoComplete="email"
+          required
+        />
 
-            {formError && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                className="text-[#BD3900] text-sm font-serif italic text-center"
-              >
-                {formError}
-              </motion.div>
-            )}
+        <FormError>{formError}</FormError>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-black text-white py-4 mt-4 text-xs font-bold uppercase tracking-[0.2em] hover:bg-[#BD3900] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? "Sending Link..." : "Send Reset Link"}
-            </button>
+        <SubmitButton
+          isLoading={isLoading}
+          idle="Send Reset Link"
+          busy="Sending link…"
+        />
+      </form>
 
-            <div className="text-center mt-6">
-              <Link
-                to="/login"
-                className="text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-black transition-colors"
-              >
-                Cancel
-              </Link>
-            </div>
-          </form>
-        )}
-      </motion.div>
-    </div>
+      <AuthNote>
+        <Link
+          to="/login"
+          className="text-ink-soft hover:text-accent transition-colors"
+        >
+          Cancel
+        </Link>
+      </AuthNote>
+    </AuthShell>
   );
 };
 

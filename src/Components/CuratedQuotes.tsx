@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useGetArticlesQuery } from "../services/articlesApi";
@@ -29,27 +29,16 @@ const extractQuotesFromHTML = (htmlContent: string) => {
   }
 };
 
-const truncateQuote = (text: string, maxLength: number = 160) => {
+const truncateQuote = (text: string, maxLength: number = 180) => {
   if (text.length <= maxLength) return text;
-
   const lastSpace = text.lastIndexOf(" ", maxLength);
-
-  if (lastSpace === -1) {
-    return text.substring(0, maxLength) + "…";
-  }
-
-  return text.substring(0, lastSpace) + "…";
+  return lastSpace === -1
+    ? text.substring(0, maxLength) + "…"
+    : text.substring(0, lastSpace) + "…";
 };
 
-// Adjusted margins so they don't push the boxes off mobile screens!
-const chaosCoordinates = [
-  "self-start ml-2 lg:ml-12 rotate-[-3deg]",
-  "self-center ml-4 lg:ml-24 rotate-[2deg]",
-  "self-end mr-2 lg:mr-16 rotate-[-4deg]",
-  "self-start ml-6 lg:ml-20 rotate-[4deg]",
-  "self-end mr-4 lg:mr-12 rotate-[-2deg]",
-  "self-center mr-2 lg:mr-24 rotate-[3deg]",
-];
+const GUTTER = "mx-auto w-full max-w-[1680px] px-6 sm:px-10 lg:px-16";
+const KICKER = "font-sans text-[10px] font-semibold uppercase tracking-[0.24em]";
 
 type QuoteItem = {
   id: string;
@@ -58,6 +47,23 @@ type QuoteItem = {
   theme: string;
   title: string;
 };
+
+/**
+ * Scatter for the quotes wall: unbalanced per card, balanced in aggregate.
+ *
+ * Two anchored left, two right, one centred, with mirrored offsets. Every quote
+ * looks placed by hand while the block's centre of mass still lands on the page
+ * axis — an odd count across only two anchors can never even out.
+ *
+ * Offsets and rotation are lg-only; on a phone there is no room to lean.
+ */
+const PLACEMENTS = [
+  { align: "self-start", nudge: "lg:-translate-x-10 lg:-rotate-2" },
+  { align: "self-end", nudge: "lg:translate-x-10 lg:rotate-[2.5deg]" },
+  { align: "self-center", nudge: "lg:-rotate-1" },
+  { align: "self-end", nudge: "lg:translate-x-5 lg:rotate-2" },
+  { align: "self-start", nudge: "lg:-translate-x-5 lg:-rotate-[2.5deg]" },
+];
 
 const CuratedQuotes = () => {
   const navigate = useNavigate();
@@ -69,70 +75,82 @@ const CuratedQuotes = () => {
     const items: QuoteItem[] = [];
 
     articles.forEach((article: ArticleType) => {
-      const extractedQuotes = extractQuotesFromHTML(article.content);
-
-      extractedQuotes.forEach((quoteText, index) => {
+      extractQuotesFromHTML(article.content).forEach((quoteText, index) => {
         items.push({
           id: `quote-${article.id}-${index}`,
           articleId: article.id,
-          content: truncateQuote(quoteText as string, 160),
+          content: truncateQuote(quoteText as string, 180),
           theme: article.theme || "Editorial",
           title: article.title,
         });
       });
     });
 
-    return shuffleArray(items).slice(0, 6);
+    return shuffleArray(items).slice(0, 5);
   }, [articles]);
 
   if (isLoading || quoteItems.length === 0) return null;
 
   return (
-    <div className="w-full mt-32 mb-20 overflow-hidden px-4">
-      <div className="mb-20 text-center">
-        <h2 className="text-xs font-bold uppercase tracking-[0.3em] text-gray-400">
-          Voices from the Archive
-        </h2>
-        <div className="w-px h-16 bg-black/20 mx-auto mt-6"></div>
+    // A wall of quotes pinned by hand. The scatter is the point; the only thing
+    // that has to be square is the block itself, which `mx-auto` centres.
+    <section className={`${GUTTER} pt-20 lg:pt-28 overflow-hidden`}>
+      <div className="flex items-center gap-4 pb-12 lg:pb-16">
+        <span className={`${KICKER} text-ink-soft`}>Voices from the Archive</span>
+        <span aria-hidden className="flex-1 h-px bg-rule" />
       </div>
 
-      <div className="flex flex-col gap-16 lg:gap-24 relative max-w-4xl mx-auto">
+      <div className="mx-auto w-full max-w-4xl flex flex-col items-center gap-16 lg:gap-24">
         {quoteItems.map((item, index) => {
-          const placementStyle =
-            chaosCoordinates[index % chaosCoordinates.length];
+          const place = PLACEMENTS[index % PLACEMENTS.length];
 
           return (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            <motion.blockquote
               key={item.id}
+              initial={{ opacity: 0, y: 28 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               onClick={() => navigate(`/${item.articleId}`)}
               data-cursor="read"
-              className={`group cursor-pointer w-[85vw] sm:w-[450px] lg:w-[550px] shrink-0 z-10 hover:z-50 transition-all duration-300 ${placementStyle}`}
+              className={`group cursor-pointer w-full sm:w-[26rem] lg:w-[32rem] ${place.align}`}
             >
-              <div className="relative w-full">
-                {/* 2. STRICT WRAP: whitespace-pre-wrap physically forces line breaks inside the hardcoded width */}
-                <p className="font-serif text-xl lg:text-2xl italic leading-[1.8] lg:leading-[1.8] tracking-wide break-words w-full block">
-                  <span className="inline bg-[#E5E5E5] text-[#111827] px-2 py-1 lg:px-3 lg:py-1 box-decoration-clone group-hover:bg-[#18181b] group-hover:text-white transition-colors duration-500 shadow-[2px_2px_12px_rgba(0,0,0,0.06)]">
-                    "{item.content}"
-                  </span>
+              {/* The tilt lives here, not on the motion element: framer-motion
+                  writes `transform` inline for the entry animation, which would
+                  overwrite a Tailwind rotate on the same node.
+                  Straightens under the cursor, like picking a card off a wall. */}
+              <div
+                className={`relative transition-transform duration-500 ease-out lg:group-hover:rotate-0 lg:group-hover:translate-x-0 ${place.nudge}`}
+              >
+                <span
+                  aria-hidden
+                  className="absolute -left-1 lg:-left-8 -top-6 lg:-top-8 font-display text-[4rem] lg:text-[6rem] leading-none text-accent/25 select-none pointer-events-none"
+                >
+                  “
+                </span>
+
+                <p className="relative font-serif font-light italic text-[1.375rem] sm:text-[1.625rem] lg:text-[1.875rem] leading-[1.45] tracking-[-0.005em] text-ink text-pretty group-hover:text-accent transition-colors duration-500">
+                  {item.content}
                 </p>
 
-                {/* Fixed the tape metadata so it doesn't overflow horizontally either */}
-                <div className="mt-5 transform translate-x-2 lg:translate-x-8 rotate-[2deg] group-hover:rotate-0 transition-transform duration-500 w-full">
-                  <span className="inline-block bg-[#18181b] text-white px-3 py-1.5 text-[9px] lg:text-[10px] font-bold uppercase tracking-[0.2em] shadow-sm group-hover:bg-[#BD3900] transition-colors max-w-[90%] truncate">
-                    {item.theme} <span className="mx-2 text-white/40">|</span>{" "}
-                    {item.title} <span className="ml-2">➔</span>
-                  </span>
-                </div>
+                <footer className="mt-7 flex items-center gap-4">
+                  <span
+                    aria-hidden
+                    className="w-8 h-px bg-rule transition-all duration-500 group-hover:w-16 group-hover:bg-accent"
+                  />
+                  <cite className="not-italic flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    <span className={`${KICKER} text-accent`}>{item.theme}</span>
+                    <span className="font-serif text-[0.9375rem] text-ink-soft">
+                      {item.title}
+                    </span>
+                  </cite>
+                </footer>
               </div>
-            </motion.div>
+            </motion.blockquote>
           );
         })}
       </div>
-    </div>
+    </section>
   );
 };
 

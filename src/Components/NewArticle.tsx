@@ -67,6 +67,11 @@ const NewArticle = () => {
   const mainArticle = articles[0];
   const secondaryArticles = articles.slice(1, 3);
 
+  // A 7/5 split with an empty right-hand column reads as a broken page rather
+  // than a sparse one. With nothing to put beside the lead, the lead takes the
+  // full measure — which is what a debut issue should look like anyway.
+  const isSolo = secondaryArticles.length === 0;
+
   const handleNavigate = (id: string) => {
     navigate(`/${id}`);
   };
@@ -80,13 +85,10 @@ const NewArticle = () => {
       animate="visible"
       data-cursor="read"
     >
-      {/* ---------------- LEFT SIDE: MAIN ARTICLE ---------------- */}
       <motion.div
         variants={itemVariants}
-        // h-full combined with flex-col ensures children distribute naturally from top to bottom
-        className="xl:col-span-7 flex flex-col h-full"
+        className={`flex flex-col h-full ${isSolo ? "xl:col-span-12" : "xl:col-span-7"}`}
       >
-        {/* Removed min-height restriction so titles sit naturally at the absolute top */}
         <div className="mb-6 flex flex-col">
           <h2
             className="font-display text-4xl lg:text-[4rem] font-normal text-ink leading-[1.02] tracking-[-0.02em] text-balance cursor-pointer hover:text-accent transition-colors duration-300 break-words line-clamp-3"
@@ -97,7 +99,9 @@ const NewArticle = () => {
         </div>
 
         <div
-          className="w-full aspect-[4/5] xl:aspect-[2/3] relative group overflow-hidden cursor-pointer"
+          className={`w-full aspect-[4/5] relative group overflow-hidden cursor-pointer ${
+            isSolo ? "xl:aspect-[21/9]" : "xl:aspect-[2/3]"
+          }`}
           onClick={() => handleNavigate(mainArticle.id)}
         >
           <div className="absolute top-0 left-0 z-10 bg-paper/85 backdrop-blur-sm px-3 py-2 border border-rule font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink">
@@ -130,7 +134,7 @@ const NewArticle = () => {
         </div>
       </motion.div>
 
-      {/* ---------------- RIGHT SIDE: SECONDARY ARTICLES ---------------- */}
+      {!isSolo && (
       <motion.div
         variants={itemVariants}
         className="xl:col-span-5 flex flex-col justify-between h-full"
@@ -140,7 +144,6 @@ const NewArticle = () => {
             key={article.id}
             className="flex flex-col xl:contents"
           >
-            {/* Removed forced spacing; top-right article hugs the top edge just like the left side */}
             <div className={`mb-6 flex flex-col ${index > 0 ? "xl:mt-12" : ""}`}>
               <h3
                 className="font-display text-2xl lg:text-3xl font-normal text-ink leading-[1.08] tracking-[-0.015em] text-balance cursor-pointer hover:text-accent transition-colors break-words line-clamp-3"
@@ -181,6 +184,7 @@ const NewArticle = () => {
           </div>
         ))}
       </motion.div>
+      )}
     </motion.div>
   );
 };

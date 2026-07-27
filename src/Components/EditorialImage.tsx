@@ -1,30 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /**
- * A cover image that refuses to lie about its subject.
+ * Cover image with two modes. Which one applies is a property of the container,
+ * not the picture:
  *
- * Two modes, and which one applies is a question about the *container*, not the
- * picture:
+ *   natural — the slot has no opinion about its shape (cards in a grid). The
+ *             image's proportions set the box, so nothing is cropped.
+ *   fill    — the slot's dimensions are load-bearing (a 100vh hero, a full-bleed
+ *             band). The image covers and crops, centred on the busiest region
+ *             rather than the geometric middle.
  *
- *   natural — the slot has no opinion about its own shape (cards in a grid).
- *             The image's proportions set the box, so nothing is ever cropped
- *             and there is never a margin to explain. This is what a magazine
- *             grid actually does: images keep their shape, the grid accommodates.
+ * No letterbox mode on purpose: an image floating inside a box of a different
+ * shape reads as a failed load. Where an extreme panorama meets a tall slot,
+ * `fill` takes the severe crop and `natural` clamps the box instead.
  *
- *   fill    — the slot's dimensions are load-bearing (a 100vh hero panel, a
- *             full-bleed band). The image must cover it, so it crops — but
- *             centred on the busiest region of the picture rather than its
- *             geometric middle.
- *
- * There is deliberately no letterbox mode. Floating an image inside a
- * hard-edged box of a different shape reads as a failed load, however the
- * margin is coloured — in print the margin *is* the page, and that continuity
- * is the whole effect. Where an extreme panorama meets a tall slot, `fill`
- * takes the severe crop and `natural` clamps the box instead.
- *
- * Pixel analysis needs an untainted canvas. Same-origin and CORS-enabled images
- * qualify; anything else falls back to a slightly-above-centre crop, which is
- * where subjects sit in most photography.
+ * Focus detection needs an untainted canvas, so it only works for same-origin
+ * and CORS-enabled images. Everything else falls back to a slightly
+ * above-centre crop, where subjects sit in most photography.
  */
 
 const SAMPLE = 32;
@@ -40,10 +32,9 @@ const MAX_CARD_ASPECT = 2.0;
 // disruptive placeholder in a portrait-leaning archive.
 const PLACEHOLDER_ASPECT = 0.8;
 
-// How far the crop is allowed to chase the focal point. Undamped, a subject at
-// 61% across slams the window flush to one edge, which centres the subject but
-// looks like the framing slipped. Pulling back toward centre keeps the subject
-// in frame while the composition stays balanced.
+// How far the crop may chase the focal point. Undamped, a subject at 61% across
+// slams the window flush to one edge — the subject is centred, but the framing
+// looks like it slipped.
 const FOCUS_DAMPING = 0.65;
 
 const damp = (v: number) => 0.5 + (v - 0.5) * FOCUS_DAMPING;
@@ -119,9 +110,17 @@ type Props = {
    * cards. "fill" makes the image cover a box whose size is already decided.
    */
   mode?: "natural" | "fill";
+  /** Pass "lazy" on pages that render many plates at once. */
+  loading?: "eager" | "lazy";
 };
 
-const EditorialImage = ({ src, alt = "", imgClassName = "", mode = "natural" }: Props) => {
+const EditorialImage = ({
+  src,
+  alt = "",
+  imgClassName = "",
+  mode = "natural",
+  loading = "eager",
+}: Props) => {
   const boxRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
@@ -210,6 +209,7 @@ const EditorialImage = ({ src, alt = "", imgClassName = "", mode = "natural" }: 
         src={src}
         alt={alt}
         crossOrigin={anonymous ? "anonymous" : undefined}
+        loading={loading}
         onLoad={onLoad}
         onError={() => (anonymous ? setAnonymous(false) : setReady(true))}
         className={`w-full h-full object-cover transition-opacity duration-700 ${

@@ -1,16 +1,13 @@
 import { useState } from "react";
 import "./App.css";
 import HomePage from "./Pages/Content/HomePage.tsx";
-// Notice we added 'Outlet' to this import!
 import { BrowserRouter, Route, Routes, Outlet } from "react-router-dom";
 import LoginForm from "./Components/LoginForm.tsx";
-import Article from "./Components/Article.tsx";
 import { AppLoaderManager } from "./Components/AppLoaderManager.tsx";
 import RegisterForm from "./Components/RegisterForm.tsx";
 import RequireAdmin from "./Components/RequireAdmin.tsx";
 import PublishPage from "./Components/PublishPage.tsx";
 import AllArticles from "./Components/AllArticles.tsx";
-import MediaGallery from "./Components/MediaGallery.tsx";
 import Layout from "./Pages/Layout.tsx";
 import Preloader from "./Components/Preloader.tsx";
 import VisualIndex from "./Components/VisualIndex.tsx";
@@ -22,7 +19,6 @@ import ArticleView from "./Components/ArticleView.tsx";
 import GlobalSensoryUX from "./Components/GlobalSensoryUX.tsx";
 import ScrollManager from "./Components/ScrollManager.tsx";
 
-// --- NEW: A wrapper that injects the nested routes into your Layout ---
 const LayoutWrapper = () => {
   return (
     <Layout>
@@ -43,10 +39,10 @@ function App() {
           <GlobalSensoryUX/>
           <ScrollManager />
             <Routes>
-              {/* ── 1. FULL SCREEN ROUTE (No Sidebars) ── */}
+              {/* Sits outside the shell on purpose — an article runs full-bleed,
+                  with no masthead or colophon around it. */}
               <Route path="/:id" element={<ArticleView />} />
 
-              {/* ── 2. LAYOUT ROUTES (Everything inside gets Sidebars) ── */}
               <Route element={<LayoutWrapper />}>
                 <Route path="/" element={<HomePage />} />
                 <Route path="/theme/:themeId" element={<ThemePage />} />
@@ -60,7 +56,6 @@ function App() {
                 </Route>
 
                 <Route path="/allArticles" element={<AllArticles />} />
-                <Route path="/gallery" element={<MediaGallery />} />
                 <Route path="/archive" element={<VisualIndex />} />
 
                 <Route path="/forgot-password" element={<ForgotPassword />} />

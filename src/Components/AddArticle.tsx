@@ -1,9 +1,16 @@
-import React, { ChangeEvent, FormEvent, useState, useEffect } from "react";
+import { ChangeEvent, FormEvent, useState, useEffect } from "react";
 import { useCreateArticleMutation } from "../services/articlesApi.ts";
 import { useUploadMediaMutation } from "../services/mediaApi.ts";
 import { Editor } from "./Editor.tsx";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+
+const GUTTER = "mx-auto w-full max-w-[1680px] px-6 sm:px-10 lg:px-16";
+const GRID = "grid grid-cols-12 gap-x-6 lg:gap-x-10";
+const KICKER = "font-sans text-[10px] font-semibold uppercase tracking-[0.24em]";
+
+const FIELD =
+  "w-full appearance-none border-b border-rule bg-transparent px-0 py-3 text-ink placeholder:text-ink-soft/40 focus:border-accent focus:outline-none transition-colors duration-300";
 
 const AddArticle = () => {
   const [title, setTitle] = useState("");
@@ -22,7 +29,6 @@ const AddArticle = () => {
 
   const DRAFT_KEY = "charity_life_article_draft";
 
-  // 1. LOAD DRAFT ON MOUNT
   useEffect(() => {
     const savedDraft = localStorage.getItem(DRAFT_KEY);
     if (savedDraft) {
@@ -40,7 +46,6 @@ const AddArticle = () => {
     }
   }, []);
 
-  // 2. AUTO-SAVE DRAFT ON CHANGE
   useEffect(() => {
     const draft = {
       title,
@@ -50,7 +55,6 @@ const AddArticle = () => {
       coverImageUrl,
       coverImageName,
     };
-    // Only save if at least one field has some content to prevent saving empty drafts continuously
     if (title || synopsis || theme || content || coverImageUrl) {
       localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
     }
@@ -94,10 +98,7 @@ const AddArticle = () => {
       };
 
       await createArticle(articleData).unwrap();
-
-      // 3. CLEAR DRAFT ON SUCCESSFUL PUBLISH
       localStorage.removeItem(DRAFT_KEY);
-
       navigate("/");
     } catch (error) {
       console.error("Failed to publish:", error);
@@ -108,86 +109,103 @@ const AddArticle = () => {
   const isLoading = isUploading || isCreating;
 
   return (
-    <div className="max-w-4xl mx-auto px-6 lg:px-0 pt-10">
-      <button
-        className="text-xs font-bold uppercase tracking-widest text-gray-500 hover:text-[#BD3900] transition-colors duration-300 mb-10"
-        onClick={() => navigate("/")}
-      >
-        ⇚ Back to Dashboard
-      </button>
-
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="mb-12 border-b border-black/10 pb-6">
-          <h1 className="text-4xl lg:text-5xl font-serif text-black tracking-tight">
-            Publish Editorial
-          </h1>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            <div className="col-span-1 md:col-span-2">
-              <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-2">
-                Article Title
-              </label>
-              <input
-                type="text"
-                value={title}
-                placeholder="Enter a captivating title..."
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full appearance-none border-b border-black/20 bg-transparent px-0 py-3 text-2xl font-serif text-[#111827] placeholder-gray-400 hover:border-black/40 focus:border-[#BD3900] focus:outline-none transition-colors duration-300"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-2">
-                Theme / Category
-              </label>
-              <input
-                type="text"
-                value={theme}
-                placeholder="e.g. Design, Health..."
-                onChange={(e) => setTheme(e.target.value)}
-                className="w-full appearance-none border-b border-black/20 bg-transparent px-0 py-3 text-lg text-[#111827] placeholder-gray-400 hover:border-black/40 focus:border-[#BD3900] focus:outline-none transition-colors duration-300"
-              />
-            </div>
-
-            <div>
-              <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-2">
-                Short Synopsis
-              </label>
-              <input
-                type="text"
-                value={synopsis}
-                placeholder="A brief summary for the feed..."
-                onChange={(e) => setSynopsis(e.target.value)}
-                className="w-full appearance-none border-b border-black/20 bg-transparent px-0 py-3 text-lg text-[#111827] placeholder-gray-400 hover:border-black/40 focus:border-[#BD3900] focus:outline-none transition-colors duration-300"
-              />
-            </div>
+    <div className="bg-paper text-ink min-h-screen pb-24">
+      <header className={`${GUTTER} pt-14 lg:pt-20 pb-8 border-b border-rule`}>
+        <div className={`${GRID} items-end`}>
+          <div className="col-span-12 lg:col-span-7">
+            <span className={`${KICKER} text-accent`}>Editorial Desk</span>
+            <h1 className="mt-4 font-display font-normal text-[2.75rem] lg:text-[4rem] leading-[1.0] tracking-[-0.025em]">
+              Publish Editorial
+            </h1>
           </div>
 
-          <div>
-            <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-2">
-              Cover Image
+          <div className="col-span-12 lg:col-span-4 lg:col-start-9 mt-6 lg:mt-0 lg:pb-2 flex items-end justify-between gap-6">
+            <span className={`${KICKER} text-ink-soft`}>Draft saved locally</span>
+            <button
+              onClick={() => navigate("/")}
+              className={`${KICKER} text-ink-soft hover:text-accent transition-colors shrink-0`}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <form onSubmit={handleSubmit} className={`${GUTTER} pt-12 lg:pt-16`}>
+        <div className={`${GRID} gap-y-12`}>
+          {/* Title spans the measure it will be read at */}
+          <div className="col-span-12 lg:col-span-8">
+            <label
+              htmlFor="title"
+              className={`block ${KICKER} text-ink-soft mb-2`}
+            >
+              Article Title
             </label>
-            <label className="flex flex-col items-center justify-center w-full h-40 px-4 transition-all duration-300 bg-[#FAFAFA] border border-black/10 rounded-sm shadow-inner appearance-none cursor-pointer hover:bg-white hover:border-[#BD3900] hover:shadow-md focus:outline-none group">
-              <span className="flex flex-col items-center space-y-2">
-                <span className="font-serif text-sm text-gray-500 group-hover:text-[#BD3900] transition-colors">
-                  {isUploading ? (
-                    <span className="text-gray-400 animate-pulse">
-                      Archiving artwork...
-                    </span>
-                  ) : coverImageName ? (
-                    <span className="text-[#BD3900] font-bold">
-                      {coverImageName} (Ready)
-                    </span>
-                  ) : (
-                    "Select a high-resolution cover image"
-                  )}
-                </span>
+            <input
+              id="title"
+              type="text"
+              value={title}
+              placeholder="Enter a captivating title…"
+              onChange={(e) => setTitle(e.target.value)}
+              className={`${FIELD} font-display text-[1.75rem] lg:text-[2.5rem] leading-[1.1] tracking-[-0.02em]`}
+            />
+          </div>
+
+          <div className="col-span-12 lg:col-span-4">
+            <label
+              htmlFor="theme"
+              className={`block ${KICKER} text-ink-soft mb-2`}
+            >
+              Theme / Section
+            </label>
+            <input
+              id="theme"
+              type="text"
+              value={theme}
+              placeholder="Design, Health…"
+              onChange={(e) => setTheme(e.target.value)}
+              className={`${FIELD} font-serif text-[1.0625rem]`}
+            />
+          </div>
+
+          <div className="col-span-12 lg:col-span-8">
+            <label
+              htmlFor="synopsis"
+              className={`block ${KICKER} text-ink-soft mb-2`}
+            >
+              Standfirst
+            </label>
+            <input
+              id="synopsis"
+              type="text"
+              value={synopsis}
+              placeholder="One sentence to set up the piece…"
+              onChange={(e) => setSynopsis(e.target.value)}
+              className={`${FIELD} font-serif text-[1.0625rem]`}
+            />
+          </div>
+
+          {/* Cover — a hairline plate slot, not a dropzone card */}
+          <div className="col-span-12 lg:col-span-4">
+            <span className={`block ${KICKER} text-ink-soft mb-2`}>
+              Cover Image
+            </span>
+            <label className="group flex items-center justify-between gap-4 w-full border-b border-rule py-3 cursor-pointer hover:border-accent transition-colors duration-300">
+              <span
+                className={`font-serif text-[1.0625rem] truncate ${
+                  coverImageName ? "text-ink" : "text-ink-soft/60"
+                }`}
+              >
+                {isUploading
+                  ? "Archiving artwork…"
+                  : coverImageName || "Select a high-resolution image"}
+              </span>
+              <span
+                className={`${KICKER} shrink-0 ${
+                  coverImageUrl ? "text-accent" : "text-ink-soft"
+                } group-hover:text-accent transition-colors`}
+              >
+                {coverImageUrl ? "Ready" : "Browse"}
               </span>
               <input
                 type="file"
@@ -199,37 +217,40 @@ const AddArticle = () => {
             </label>
           </div>
 
-          <div>
-            <label className="block text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 mb-2">
+          <div className="col-span-12">
+            <label className={`block ${KICKER} text-ink-soft mb-3`}>
               Article Body
             </label>
-            <div className="bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden min-h-[400px]">
+            <div className="border border-rule bg-paper min-h-[400px]">
               <Editor value={content} onChange={setContent} />
             </div>
           </div>
 
-          <AnimatePresence>
-            {formError && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="text-[#BD3900] text-sm font-serif italic text-center"
-              >
-                {formError}
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <div className="col-span-12 lg:col-span-6 lg:col-start-4">
+            <AnimatePresence>
+              {formError && (
+                <motion.p
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  role="alert"
+                  className="mb-6 font-serif italic text-[0.9375rem] leading-[1.5] text-accent border-l-2 border-accent pl-4"
+                >
+                  {formError}
+                </motion.p>
+              )}
+            </AnimatePresence>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-black text-white py-5 text-xs font-bold uppercase tracking-[0.2em] hover:cursor-pointer  hover:bg-[#BD3900] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isCreating ? "Publishing Article..." : "Publish Article"}
-          </button>
-        </form>
-      </motion.div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={`w-full bg-ink text-paper py-4 ${KICKER} hover:bg-accent transition-colors duration-300 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer`}
+            >
+              {isCreating ? "Publishing…" : "Publish Article"}
+            </button>
+          </div>
+        </div>
+      </form>
     </div>
   );
 };

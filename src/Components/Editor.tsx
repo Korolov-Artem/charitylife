@@ -8,7 +8,6 @@ const metaUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const BlockEmbed = Quill.import("blots/block/embed") as any;
 
-// Custom HTML5 Video element handling
 class VideoBlot extends BlockEmbed {
   static create(value: string) {
     const node = super.create();
@@ -30,7 +29,6 @@ VideoBlot.blotName = "video";
 VideoBlot.tagName = "video";
 Quill.register(VideoBlot, true);
 
-// Custom HTML5 Audio element handling
 class AudioBlot extends BlockEmbed {
   static create(value: string) {
     const node = super.create();
@@ -50,7 +48,6 @@ AudioBlot.blotName = "audio";
 AudioBlot.tagName = "audio";
 Quill.register(AudioBlot, true);
 
-// Custom toolbar icons
 const icons = Quill.import("ui/icons") as any;
 icons["audio"] = `
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; margin-top: 1px;">
@@ -101,14 +98,12 @@ export const Editor = ({ value, onChange }: EditorProps) => {
   const absorbing = useRef(false);
 
   /**
-   * Sweep any data: URI images out of the document and into the media archive.
+   * Moves data: URI images out of the document and into the media archive.
    *
-   * The paste and drop handlers below catch images arriving as *files*, but an
-   * image can also arrive inlined in pasted text/html — Quill keeps those as
-   * base64 and they end up persisted inside the article body. One screenshot
-   * pasted this way put 1.39MB into a single article, which every list endpoint
-   * then ships to every reader. This is the backstop that catches whatever the
-   * file-level handlers don't.
+   * The paste and drop handlers below catch images arriving as files, but an
+   * image inlined in pasted text/html stays base64 and gets persisted into the
+   * article body — one screenshot put 1.39MB into a single article, which every
+   * list endpoint then ships to every reader. This is the backstop for those.
    */
   const absorbDataUris = useCallback(async () => {
     const quill = quillRef.current?.getEditor();
@@ -248,7 +243,8 @@ export const Editor = ({ value, onChange }: EditorProps) => {
           ["bold", "italic", "underline"],
           [{ list: "ordered" }, { list: "bullet" }],
           ["blockquote", "link"],
-          // REMOVED: "image" has been removed to prevent redundancy
+          // No "image" button: images come in via the archive drawer or a paste,
+          // both of which route through the upload path.
           ["video", "audio", "archive"],
           ["clean"],
         ],
@@ -302,7 +298,6 @@ export const Editor = ({ value, onChange }: EditorProps) => {
             flex: 1;
         }
 
-        /* The Toolbar Background and Structure */
         .editorial-editor-wrapper .ql-toolbar {
             border: none;
             background-color: #FFFFFF;
@@ -313,7 +308,6 @@ export const Editor = ({ value, onChange }: EditorProps) => {
             gap: 0.5rem;
         }
 
-        /* Group Dividers */
         .editorial-editor-wrapper .ql-toolbar .ql-formats {
             display: flex;
             align-items: center;
@@ -330,7 +324,6 @@ export const Editor = ({ value, onChange }: EditorProps) => {
             background-color: #E5E7EB;
         }
 
-        /* Base Icon Styles */
         .editorial-editor-wrapper .ql-toolbar button {
             width: 36px;
             height: 36px;
@@ -349,11 +342,10 @@ export const Editor = ({ value, onChange }: EditorProps) => {
             height: 18px;
         }
 
-        /* -----------------------------------------------------------------
-           NEW: OVERRIDING QUILL'S DEFAULT BLUE (#06c) TO YOUR RED (#BD3900)
-           ----------------------------------------------------------------- */
+        /* Quill's snow theme hardcodes #06c on active/hover states. Overriding
+           it takes three passes, since the icons use colour, fill and stroke. */
 
-        /* 1. Target standard text elements (dropdowns, labels, etc.) */
+        /* colour */
         .editorial-editor-wrapper .ql-snow.ql-toolbar button:hover,
         .editorial-editor-wrapper .ql-snow .ql-toolbar button:hover,
         .editorial-editor-wrapper .ql-snow.ql-toolbar button.ql-active,
@@ -365,7 +357,7 @@ export const Editor = ({ value, onChange }: EditorProps) => {
             color: #BD3900 !important;
         }
 
-        /* 2. Target SVG fills (like the bold icon) */
+        /* fill */
         .editorial-editor-wrapper .ql-snow.ql-toolbar button:hover .ql-fill,
         .editorial-editor-wrapper .ql-snow .ql-toolbar button:hover .ql-fill,
         .editorial-editor-wrapper .ql-snow.ql-toolbar button.ql-active .ql-fill,
@@ -379,7 +371,7 @@ export const Editor = ({ value, onChange }: EditorProps) => {
             fill: #BD3900 !important;
         }
 
-        /* 3. Target SVG strokes (like the underline or custom icons) */
+        /* stroke */
         .editorial-editor-wrapper .ql-snow.ql-toolbar button:hover .ql-stroke,
         .editorial-editor-wrapper .ql-snow .ql-toolbar button:hover .ql-stroke,
         .editorial-editor-wrapper .ql-snow.ql-toolbar button.ql-active .ql-stroke,
@@ -393,7 +385,6 @@ export const Editor = ({ value, onChange }: EditorProps) => {
             stroke: #BD3900 !important;
         }
 
-        /* Dropdown styling (Headers) */
         .editorial-editor-wrapper .ql-picker {
             font-family: sans-serif;
             font-size: 14px;

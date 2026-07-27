@@ -5,24 +5,21 @@ import Suggestions from "./Suggestions.tsx";
 import { getImageUrl } from "./getImageUrl.ts";
 import { motion } from "framer-motion";
 
-// Converts escaped HTML from the database back into real HTML tags
-// AND cleans up invisible non-breaking spaces that break layouts!
+// The API escapes article HTML on the way out; this puts it back, and
+// normalises the editor's &nbsp; so long words can wrap again.
 const decodeHTML = (html: string) => {
   if (typeof document === "undefined" || !html) return html;
 
   const txt = document.createElement("textarea");
   txt.innerHTML = html;
 
-  // 1. Extract the raw text from the textarea
   let decodedString = txt.value;
 
-  // 2. Replace all HTML and Unicode non-breaking spaces with standard spaces
   decodedString = decodedString.replace(/&nbsp;/g, " ").replace(/\u00A0/g, " ");
 
   return decodedString;
 };
 
-// Animation Variants
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -88,7 +85,6 @@ const Article = () => {
     >
       <div ref={topRef} className="absolute top-0 w-full h-0" />
 
-      {/* --- ARTICLE HEADER: Author & Date --- */}
       <motion.div
         variants={textFadeUp}
         className="max-w-4xl mx-auto flex justify-between items-end mb-12 border-b border-black/10 pb-6 pt-10 px-6 lg:px-0"
@@ -110,7 +106,6 @@ const Article = () => {
         </p>
       </motion.div>
 
-      {/* --- TITLE: Centered and Narrow --- */}
       <motion.div
         variants={textFadeUp}
         className="max-w-4xl mx-auto text-center mb-16 px-6 lg:px-0"
@@ -120,7 +115,6 @@ const Article = () => {
         </h1>
       </motion.div>
 
-      {/* --- HERO IMAGE: Full Width with Reveal --- */}
       <motion.div
         variants={imageReveal}
         className="w-full aspect-video mb-16 overflow-hidden bg-zinc-100"
@@ -132,7 +126,6 @@ const Article = () => {
         />
       </motion.div>
 
-      {/* --- CAPTION / CREDITS --- */}
       <motion.div
         variants={textFadeUp}
         className="max-w-3xl mx-auto text-center mb-16 px-6 lg:px-0"
@@ -142,29 +135,23 @@ const Article = () => {
         </p>
       </motion.div>
 
-      {/* --- BODY CONTENT: Quill Ready --- */}
       <motion.div
         variants={textFadeUp}
         className="w-full max-w-3xl mx-auto px-6 text-lg lg:text-xl leading-[1.8] font-light text-zinc-800 break-words
                 [&>p]:mb-8
 
-                /* Link styling */
                 [&_a]:text-[#BD3900] [&_a]:underline [&_a]:underline-offset-4 [&_a]:decoration-1 [&_a:hover]:text-black [&_a]:transition-colors
 
-                /* Dropcap */
                 [&>p:first-of-type]:first-letter:text-7xl [&>p:first-of-type]:first-letter:font-serif [&>p:first-of-type]:first-letter:mr-3 [&>p:first-of-type]:first-letter:float-left [&>p:first-of-type]:first-letter:text-[#BD3900]
 
-                /* FIXED IMAGE STYLING */
                 [&_img]:block [&_img]:mx-auto [&_img]:max-w-full [&_img]:h-auto [&_img]:my-16 [&_img]:bg-zinc-100
 
-                /* Typography elements */
                 [&>blockquote]:border-l-4 [&>blockquote]:border-[#BD3900] [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:my-12 [&>blockquote]:text-2xl [&>blockquote]:text-black
                 [&>h2]:text-3xl [&>h2]:font-serif [&>h2]:mt-16 [&>h2]:mb-6
                 [&>h3]:text-2xl [&>h3]:font-serif [&>h3]:mt-12 [&>h3]:mb-4"
         dangerouslySetInnerHTML={{ __html: decodeHTML(article.content) }}
       />
 
-      {/* --- FOOTER SUGGESTIONS --- */}
       <div className="mt-32">
         <Suggestions theme={article.theme} />
       </div>

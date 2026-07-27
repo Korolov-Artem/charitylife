@@ -9,16 +9,16 @@ const Header = () => {
 
     const toggleMenu = () => {
         if (isMenuOpen) {
-            // Start closing animation
             setIsMenuVisible(false);
-            // Wait for animation to complete before unmounting
+            // Held for the length of the CSS transition in Header.css; unmounting
+            // straight away would cut the close animation off.
             setTimeout(() => {
                 setIsMenuOpen(false);
             }, 300);
         } else {
-            // Mount component first
             setIsMenuOpen(true);
-            // Then start opening animation
+            // Mount first, animate on the next tick — the transition needs a
+            // frame at the initial state to have something to move from.
             setTimeout(() => {
                 setIsMenuVisible(true);
             }, 10);
@@ -47,8 +47,6 @@ const Header = () => {
                         className="z-50 text-3xl mt-4 font-light hover:tracking-widest transition-all duration-300"
                         id="menu"
                         onClick={toggleMenu}>Меню</h2>
-                    {/*<h2 className="text-3xl mt-4 font-light hover:tracking-widest transition-all duration-300"*/}
-                    {/*    onClick={handleClick}>Авторизація</h2>*/}
                 </div>
             </div>
             {isMenuOpen && <Menu isOpen={isMenuVisible} onClose={handleMenuClose}/>}

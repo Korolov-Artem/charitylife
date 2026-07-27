@@ -7,7 +7,14 @@ export const getImageUrl = (path: string | undefined) => {
   cleanPath = cleanPath.replace(/"/g, "");
   cleanPath = cleanPath.trim();
 
-  if (cleanPath.startsWith("http")) {
+  // Already-resolvable sources pass through untouched. data: and blob: matter
+  // here because the editor can inline images, and prefixing a host onto one
+  // produces a guaranteed 404 rather than a picture.
+  if (
+    cleanPath.startsWith("http") ||
+    cleanPath.startsWith("data:") ||
+    cleanPath.startsWith("blob:")
+  ) {
     return cleanPath;
   }
 

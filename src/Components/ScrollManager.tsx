@@ -63,13 +63,9 @@ const ScrollManager = ({ behavior = "auto" }: Props) => {
     };
   }, []);
 
-  // Track the position in a ref on every scroll — a bare assignment, so there is
-  // nothing to throttle and nothing that can be dropped.
-  //
-  // Persisting is the expensive half, and it deliberately avoids
-  // requestAnimationFrame: rAF is suspended outright in a hidden document, so an
-  // rAF-throttled write loses the position of anyone who backgrounds the tab
-  // mid-article. pagehide/visibilitychange are the events that still fire there.
+  // Tracking is a bare ref assignment, so there is nothing to throttle. Writes
+  // are flushed on pagehide/visibilitychange rather than rAF, which is suspended
+  // in a hidden document and would lose anyone backgrounding the tab mid-article.
   useEffect(() => {
     const onScroll = () => {
       lastY.current = window.scrollY;
@@ -91,14 +87,10 @@ const ScrollManager = ({ behavior = "auto" }: Props) => {
   // useLayoutEffect, not useEffect: this runs before paint, so the reader never
   // sees a frame of the new page rendered at the old scroll offset.
   useLayoutEffect(() => {
-    // Bank the outgoing entry from the tracked value rather than window.scrollY:
-    // the incoming DOM has already committed, so if it is shorter the browser
-    // has clamped the live position and it no longer describes where the reader
-    // actually was. Then retarget, so a scroll event fired by that clamp lands
-    // on the new entry instead of corrupting the one we just left.
-    // Falling back to the live value covers the case where the reader navigated
-    // before any scroll event was dispatched; lastY wins when both are set,
-    // since it is the one the clamp cannot have rewritten.
+    // Bank the outgoing entry from lastY, not window.scrollY: the incoming DOM
+    // has already committed, and if it is shorter the browser has clamped the
+    // live position. Retargeting activeKey immediately keeps a scroll event
+    // fired by that clamp from corrupting the entry we just left.
     if (activeKey.current !== location.key) {
       writePosition(activeKey.current, lastY.current || window.scrollY);
       activeKey.current = location.key;

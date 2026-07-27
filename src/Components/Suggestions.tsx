@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getImageUrl } from "./getImageUrl.ts";
 import { motion } from "framer-motion";
 
-// --- Editorial Animation Variants ---
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -31,42 +30,38 @@ const Suggestions = ({ theme }: { theme: string }) => {
   const navigate = useNavigate();
   const { id: currentId } = useParams<{ id: string }>();
 
-  // 1. Fetch theme articles (Safely encoding Cyrillic characters for the URL)
+  // Encoded because themes are Cyrillic.
   const { data: themeData, isLoading: themeLoading } = useGetArticlesByThemeQuery({
     theme: encodeURIComponent(theme || ""),
     page: 1,
   });
 
-  // 2. Fetch generic fallback articles in parallel to guarantee we always have content
+  // Fetched unconditionally so a thin theme can still fill three slots.
   const { data: fallbackData, isLoading: fallbackLoading } = useGetArticlesQuery({
     pgSize: 5,
   });
 
   if (themeLoading || fallbackLoading) return null;
 
-  // 3. Safely extract arrays (handles different backend pagination structures like .items or .data)
+  // The list endpoints aren't consistent about their envelope.
   const rawTheme = Array.isArray(themeData) ? themeData : themeData?.items || themeData?.data || [];
   const rawFallback = Array.isArray(fallbackData) ? fallbackData : fallbackData?.items || fallbackData?.data || [];
 
-  // 4. Filter out the currently viewed article from both lists so we don't suggest what they just read
   const themeSuggested = rawTheme.filter((a: any) => String(a.id) !== String(currentId));
   const fallbackSuggested = rawFallback.filter((a: any) => String(a.id) !== String(currentId));
 
-  // 5. Smart Merge: Prioritize theme articles, fill any empty slots with fallbacks
+  // Theme first, topped up from the archive.
   const finalSuggestions = [...themeSuggested];
   if (finalSuggestions.length < 3) {
     const needed = 3 - finalSuggestions.length;
-    // Only borrow fallback articles that aren't already in the theme list
     const uniqueFallbacks = fallbackSuggested.filter(
       (fallbackItem: any) => !finalSuggestions.some(themeItem => themeItem.id === fallbackItem.id)
     );
     finalSuggestions.push(...uniqueFallbacks.slice(0, needed));
   }
 
-  // Slice to exactly 3 for the UI grid
   const displayArticles = finalSuggestions.slice(0, 3);
 
-  // Only hide the section if the ENTIRE database has no articles left
   if (displayArticles.length === 0) return null;
 
   return (

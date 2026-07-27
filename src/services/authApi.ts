@@ -31,9 +31,6 @@ export const authApi = createApi({
       invalidatesTags: () => [{ type: "User", id: "LIST" }]
     }),
 
-    // ---> NEWLY ADDED ROUTES FOR FORGOT PASSWORD <---
-
-    // 1. Request the reset email (maps to POST /reset-password)
     requestPasswordReset: builder.mutation<void, { email: string }>({
       query: (data) => ({
         url: "reset-password",
@@ -42,7 +39,6 @@ export const authApi = createApi({
       }),
     }),
 
-    // 2. Verify the token from the email link (maps to GET /reset-password/initiate)
     verifyResetToken: builder.query<{ success: boolean; token: string }, string>({
       query: (resetToken) => ({
         url: `reset-password/initiate?resetToken=${resetToken}`,
@@ -50,7 +46,6 @@ export const authApi = createApi({
       }),
     }),
 
-    // 3. Submit the new password (maps to POST /reset-password/confirm)
     confirmPasswordReset: builder.mutation<void, any>({
       query: (data) => ({
         url: "reset-password/confirm",
@@ -64,7 +59,7 @@ export const authApi = createApi({
 export const {
   useLoginMutation,
   useRegisterMutation,
-  useRequestPasswordResetMutation, // <-- Export the new hooks!
+  useRequestPasswordResetMutation,
   useVerifyResetTokenQuery,
   useConfirmPasswordResetMutation,
 } = authApi;

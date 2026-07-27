@@ -39,9 +39,8 @@ const ArticleOutro = ({ article }: Props) => {
     { skip: !themeData || themeSiblings.length > 0 }
   );
 
-  // "Next" is the following article in the same theme, oldest-ward, wrapping at
-  // the end — so a reader walking a theme never gets served the same piece twice
-  // in a row. Falls back to random once a theme is exhausted.
+  // "Next" is the most recent other piece in the theme; the three below it fill
+  // the index. Falls back to the random pool once a theme is exhausted.
   const { next, index } = useMemo(() => {
     const pool = themeSiblings.length
       ? themeSiblings
@@ -59,13 +58,49 @@ const ArticleOutro = ({ article }: Props) => {
   // Scroll position is handled globally by <ScrollManager /> in App.tsx.
   const go = (id: string | number) => navigate(`/${id}`);
 
-  if (!next) return null;
+  // ArticleView sits outside the site shell, so there is no footer underneath to
+  // catch the reader — with nothing to turn to, close with a colophon rather
+  // than rendering nothing.
+  if (!next) {
+    return (
+      <motion.section
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true, margin: "-120px" }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="mt-24 lg:mt-32 border-t border-rule"
+      >
+        <div className="mx-auto w-full max-w-[1680px] px-6 sm:px-10 lg:px-16 py-16 lg:py-24">
+          <div className="grid grid-cols-12 gap-x-6 lg:gap-x-10">
+            <div className="col-span-12 md:col-span-10 md:col-start-2 lg:col-span-6 lg:col-start-4">
+              <span className="font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-accent">
+                The archive, so far
+              </span>
+              <p className="mt-5 font-serif text-[1.25rem] lg:text-[1.5rem] leading-[1.45] text-ink text-pretty max-w-[34ch]">
+                This is everything we've published to date. More is being
+                written.
+              </p>
+              <button
+                onClick={() => navigate("/")}
+                className="mt-8 group font-sans text-[10px] font-semibold uppercase tracking-[0.24em] text-ink hover:text-accent transition-colors inline-flex items-center gap-3"
+              >
+                Return to the front page
+                <span
+                  aria-hidden
+                  className="w-8 h-px bg-ink transition-all duration-500 group-hover:w-14 group-hover:bg-accent"
+                />
+              </button>
+            </div>
+          </div>
+        </div>
+      </motion.section>
+    );
+  }
 
   return (
     <>
-      {/* --- TURN THE PAGE ---
-          Mirrors the hero's split spread so it reads as a new spread opening,
-          not as a footer widget. */}
+      {/* Mirrors the hero's split spread, so this opens a new spread rather
+          than reading as a footer widget. */}
       <motion.section
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -110,9 +145,8 @@ const ArticleOutro = ({ article }: Props) => {
         </div>
       </motion.section>
 
-      {/* --- BACK OF BOOK ---
-          Deliberately text-only: thumbnails here would compete with the spread
-          above and flatten it back into a row of equal-weight cards. */}
+      {/* Text-only: thumbnails would compete with the spread above and flatten
+          it into a row of equal-weight cards. */}
       {index.length > 0 && (
         <section className="mx-auto w-full max-w-[1680px] px-6 sm:px-10 lg:px-16 pt-20 lg:pt-28 pb-24 lg:pb-32">
           <div className="grid grid-cols-12 gap-x-6 lg:gap-x-10">

@@ -42,7 +42,6 @@ export const articlesApi = createApi({
                 method: "POST",
                 data: newArticle,
                 params: undefined,
-                // body: newArticle,
             }),
             invalidatesTags: ["Article"],
         }),

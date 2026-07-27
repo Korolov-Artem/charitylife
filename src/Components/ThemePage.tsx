@@ -114,9 +114,8 @@ const ThemePage = () => {
 
   return (
     <div className="bg-paper text-ink min-h-screen pb-24 lg:pb-32">
-      {/* ── SECTION OPENER ──
-          Set left and bottom-aligned against the standfirst, so the masthead
-          reads as a spread opening rather than a centred page title. */}
+      {/* Set left and bottom-aligned against the standfirst, so this reads as a
+          spread opening rather than a centred page title. */}
       <motion.header
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -152,8 +151,7 @@ const ThemePage = () => {
         </div>
       ) : (
         <>
-          {/* ── LEAD ──
-              Full-bleed plate, caption hung on the grid beneath it. */}
+          {/* Full-bleed plate, caption hung on the grid beneath it. */}
           {lead && (
             <motion.section
               {...fade}

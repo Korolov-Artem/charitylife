@@ -30,8 +30,9 @@ axiosInstance.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
-            console.error("Unauthorized request, redirecting to login...");
-            //Redirect to login page
+            // TODO: no redirect is actually wired up here yet — the caller is
+            // left to handle the rejected promise.
+            console.error("Unauthorized request");
         }
         return Promise.reject(error);
     }

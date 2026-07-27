@@ -21,9 +21,12 @@ const MediaCarousel = () => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
 
-  // Pauses auto-play if hovered
+  // A single slide has nowhere to advance to: the timer would just cycle the
+  // one card back onto itself, and a lone pagination dot is noise.
+  const isStatic = articles.length < 2;
+
   useEffect(() => {
-    if (articles.length === 0 || isHovered) return;
+    if (articles.length < 2 || isHovered) return;
 
     const timer = setInterval(() => {
       setCurrentIndex((prevIndex) =>
@@ -79,8 +82,10 @@ const MediaCarousel = () => {
             <motion.div
               key={article.id}
               data-cursor="read"
-              className="absolute w-[80%] sm:w-[60%] lg:w-[45%] max-w-3xl h-full cursor-grab active:cursor-grabbing"
-              drag="x"
+              className={`absolute w-[80%] sm:w-[60%] lg:w-[45%] max-w-3xl h-full ${
+                isStatic ? "cursor-pointer" : "cursor-grab active:cursor-grabbing"
+              }`}
+              drag={isStatic ? false : "x"}
               dragConstraints={{ left: 0, right: 0 }}
               dragElastic={0.6}
               onDragEnd={handleDragEnd}
@@ -140,8 +145,7 @@ const MediaCarousel = () => {
         })}
       </div>
 
-      {/* --- PAGINATION --- */}
-      <div className="flex gap-2 mt-8 z-20 relative">
+      <div className={`gap-2 mt-8 z-20 relative ${isStatic ? "hidden" : "flex"}`}>
         {articles.map((_, idx) => (
           <button
             key={idx}

@@ -79,9 +79,11 @@ const PROSE = [
   "[&_ul>li]:list-disc [&_ol>li]:list-decimal [&_li]:mb-[0.55em] [&_li]:pl-[0.35em]",
   "[&_li]:marker:text-accent",
 
-  // links
+  // links — the hover belongs inside the arbitrary selector. `hover:[&_a]:…`
+  // reads as "when the *container* is hovered, colour every descendant link",
+  // which lights up the whole article at once.
   "[&_a]:underline [&_a]:decoration-1 [&_a]:decoration-rule [&_a]:underline-offset-[0.25em]",
-  "hover:[&_a]:text-accent hover:[&_a]:decoration-accent [&_a]:transition-colors [&_a]:duration-300",
+  "[&_a:hover]:text-accent [&_a:hover]:decoration-accent [&_a]:transition-colors [&_a]:duration-300",
 
   // rules & inline media
   "[&_hr]:my-[3em] [&_hr]:border-0 [&_hr]:h-px [&_hr]:bg-rule",
@@ -162,13 +164,11 @@ const ArticleView = () => {
   return (
     <div className="bg-paper min-h-screen font-sans text-ink selection:bg-accent selection:text-paper relative">
 
-      {/* --- READING PROGRESS --- */}
       <motion.div
         className="fixed top-0 left-0 right-0 h-[2px] bg-accent origin-left z-[100]"
         style={{ scaleX }}
       />
 
-      {/* --- PERSISTENT NAV --- */}
       {/* Always home, never history: readers arrive here from search, a shared
           link or a sibling article, and navigate(-1) sends each of them
           somewhere different — or off the site entirely. */}
@@ -179,7 +179,6 @@ const ArticleView = () => {
         ← Index
       </button>
 
-      {/* --- HERO SPREAD --- */}
       <header className="w-full min-h-[100svh] md:h-screen flex flex-col-reverse md:flex-row border-b border-rule">
 
         {/* Type side — content anchored bottom-left, never centered */}
@@ -231,7 +230,6 @@ const ArticleView = () => {
         </div>
       </header>
 
-      {/* --- THE SPREAD --- */}
       <main className="mx-auto w-full max-w-[1680px] px-6 sm:px-10 lg:px-16">
         {layoutRows.map((row, index) => {
           const isFirst = index === 0;
@@ -302,9 +300,8 @@ const ArticleView = () => {
           );
         })}
 
-        {/* --- END MARK ---
-            Sits on the reading measure, not the page centre: it belongs to the
-            text block it closes. */}
+        {/* On the reading measure, not the page centre — it belongs to the text
+            block it closes. */}
         <section className="grid grid-cols-12 gap-x-6 lg:gap-x-10 pt-14 lg:pt-20">
           <div className="col-span-12 md:col-span-10 md:col-start-2 lg:col-span-6 lg:col-start-4">
             <span aria-hidden className="inline-block w-[0.7em] h-[0.7em] bg-accent align-middle" />
