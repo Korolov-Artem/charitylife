@@ -3,6 +3,10 @@ import { API_URL } from "../config.ts";
 
 export const axiosInstance = axios.create({
     baseURL: API_URL,
+    // The refresh token is an httpOnly cookie on a different origin to the
+    // site; without this the browser never attaches it and /auth/refresh
+    // always fails.
+    withCredentials: true,
     timeout: 10000,
     headers: {
         "Content-Type": "application/json",

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useLoginMutation } from "../services/authApi.ts";
 import {
   AuthShell,
@@ -18,6 +18,11 @@ const LoginForm = () => {
 
   const [login, { isLoading }] = useLoginMutation();
   const navigate = useNavigate();
+
+  // Set by the confirm-email redirect, which lands here rather than on a
+  // backend-rendered page.
+  const [searchParams] = useSearchParams();
+  const confirmed = searchParams.get("confirmed");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +48,17 @@ const LoginForm = () => {
       title="З поверненням"
       standfirst="Увійдіть, щоб читати далі та голосувати."
     >
+      {confirmed === "1" && (
+        <p className={`${KICKER} text-accent mb-8`}>
+          Пошту підтверджено — тепер можна увійти.
+        </p>
+      )}
+      {confirmed === "0" && (
+        <p className={`${KICKER} text-accent mb-8`}>
+          Посилання недійсне або застаріле. Спробуйте ще раз.
+        </p>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-8">
         <Field
           id="email"

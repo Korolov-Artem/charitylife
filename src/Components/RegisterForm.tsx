@@ -31,7 +31,7 @@ const RegisterForm = () => {
     }
 
     try {
-      const response = await register({ email, password, name }).unwrap();
+      const response = await register({ email, password, userName: name }).unwrap();
 
       if (response) {
         setIsSuccess(true);
