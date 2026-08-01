@@ -1,0 +1,36 @@
+# Apache config for the built SPA. Lives in public/ so Vite copies it into
+# dist/ on every build — it must sit next to index.html in public_html.
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Serve every non-file, non-directory path from index.html so React Router
+  # can handle it. Without this, opening or refreshing /login, /archive or an
+  # article URL directly returns Apache's 404 instead of the app.
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  # The service worker and the entry HTML must never be cached, or a deploy
+  # keeps serving the previous build from the browser's disk cache.
+  <FilesMatch "^(index\.html|sw\.js|registerSW\.js|manifest\.webmanifest)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+  </FilesMatch>
+
+  # Everything under assets/ carries a content hash in its filename, so it is
+  # safe to cache forever — a new build produces new names.
+  <FilesMatch "\.(js|css|woff2?|png|jpe?g|gif|svg|webp|avif)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
+</IfModule>
+
+# UTF-8, so Ukrainian copy renders correctly even if the server default differs.
+AddDefaultCharset UTF-8
