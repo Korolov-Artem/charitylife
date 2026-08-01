@@ -3,7 +3,21 @@ import { API_URL } from "../config.ts";
 
 export const mediaApi = createApi({
   reducerPath: "mediaApi",
-  baseQuery: fetchBaseQuery({ baseUrl: `${API_URL}/` }),
+  // This is the one API not going through axiosInstance, so the auth header
+  // that its interceptor adds has to be reproduced here — /upload is
+  // admin-only and would otherwise 401.
+  baseQuery: fetchBaseQuery({
+    baseUrl: `${API_URL}/`,
+    prepareHeaders: (headers) => {
+      const token = localStorage.getItem("authToken");
+      if (token) headers.set("Authorization", `Bearer ${token}`);
+
+      const deviceId = localStorage.getItem("deviceId");
+      if (deviceId) headers.set("x-device-id", deviceId);
+
+      return headers;
+    },
+  }),
   tagTypes: ["Media"],
   endpoints: (builder) => ({
     getMediaArchive: builder.query({
